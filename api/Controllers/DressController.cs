@@ -13,7 +13,8 @@ namespace api.Controllers
     public class DressController : ApiController
     {
 
-        public DressController()
+        private readonly PII_DBContext dbContext;
+        public DressController(PII_DBContext dbContext) : base(dbContext)
         {
             
         }

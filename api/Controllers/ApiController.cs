@@ -12,9 +12,10 @@ namespace api.Controllers
     [Route("[controller]")]
     public class ApiController : ControllerBase
     {
-
-        public ApiController()
+        private readonly PII_DBContext dbContext;
+        public ApiController(PII_DBContext dbContext)
         {
+            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
         

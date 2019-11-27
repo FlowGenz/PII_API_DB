@@ -13,7 +13,9 @@ namespace api.Controllers
     public class OrderController : ApiController
     {
 
-        public OrderController()
+        private readonly PII_DBContext dbContext;
+
+        public OrderController(PII_DBContext dbContext) : base(dbContext)
         {
             
         }

@@ -13,9 +13,10 @@ namespace api.Controllers
     public class CustomerController : ApiController
     {
 
-        public CustomerController()
+        private readonly PII_DBContext dbContext;
+
+        public CustomerController(PII_DBContext dbContext) : base(dbContext)
         {
-            
         }
 
         [HttpGet]
