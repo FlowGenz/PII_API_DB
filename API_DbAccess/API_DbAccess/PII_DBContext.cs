@@ -29,7 +29,6 @@ namespace API_DbAccess
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=localhost; Database=PII_DB; User Id=SA; Password=24Naruto24;");   
             }
         }
 
