@@ -34,12 +34,12 @@ namespace api.Controllers
 
         [HttpPost]
         public ActionResult<Customer> Post([FromBody] Customer customer) {
-            try {
+            //try {
                 dbContext.Add<Customer>(customer);
                 dbContext.SaveChanges();
-            } catch (DbUpdateException dbUpdateException) {
-                return BadRequest(dbUpdateException);
-            }
+            //} catch (DbUpdateException dbUpdateException) {
+                // return BadRequest(dbUpdateException);
+            //}
             return Created("PII_DB", customer);
         }
     }

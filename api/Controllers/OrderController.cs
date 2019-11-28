@@ -17,14 +17,19 @@ namespace api.Controllers
 
         public OrderController(PII_DBContext dbContext) : base(dbContext)
         {
-            
+            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
         [HttpGet]
-       /* public IEnumerable<DressOrder> Get()
+        public ActionResult<IEnumerable<DressOrder>> Get()
         {
-            
-        }*/
+            IEnumerable<DressOrder> orders = dbContext.DressOrder.ToList();
+
+            if (orders.Any()) {
+                return Ok(orders);
+            }
+            return NotFound("No order found");
+        }
 
         [HttpPost]
         public void Post([FromBody] DressOrder order) {

@@ -16,14 +16,19 @@ namespace api.Controllers
         private readonly PII_DBContext dbContext;
         public DressController(PII_DBContext dbContext) : base(dbContext)
         {
-            
+            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
         [HttpGet]
-       /* public IEnumerable<Dress> Get()
+        public ActionResult<IEnumerable<Dress>> Get()
         {
-            
-        }*/
+            IEnumerable<Dress> dresses = dbContext.Dress.ToList();
+
+            if (dresses.Any()) {
+                return Ok(dresses);
+            }
+            return NotFound("No dress found");
+        }
 
         [HttpPost]
         public void Post([FromBody] Dress dress) {
