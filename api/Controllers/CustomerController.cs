@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using API_DbAccess;
 
 namespace api.Controllers
@@ -32,8 +33,14 @@ namespace api.Controllers
         }
 
         [HttpPost]
-        public void Post([FromBody] Customer customer) {
-
+        public ActionResult<Customer> Post([FromBody] Customer customer) {
+            try {
+                dbContext.Add<Customer>(customer);
+                dbContext.SaveChanges();
+            } catch (DbUpdateException dbUpdateException) {
+                return BadRequest(dbUpdateException);
+            }
+            return Created("PII_DB", customer);
         }
     }
 }

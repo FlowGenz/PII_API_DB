@@ -34,6 +34,8 @@ CREATE TABLE dress (
     date_end_available DATE NOT NULL,
     partners_id INT NOT NULL,
     FOREIGN KEY (partners_id) REFERENCES partners(id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 );
 
 CREATE TABLE dress_order (
@@ -45,6 +47,8 @@ CREATE TABLE dress_order (
     isValid BIT NOT NULL,
     customer_id INT NOT NULL,
     FOREIGN KEY (customer_id) REFERENCES customer(id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 );
 
 CREATE TABLE order_line (
@@ -55,16 +59,24 @@ CREATE TABLE order_line (
     customer_id INT NOT NULL,
     dress_order_id INT NOT NULL,
     dress_id INT NOT NULL,
-    FOREIGN KEY (dress_order_id) REFERENCES dress_order(id),
+    FOREIGN KEY (dress_order_id) REFERENCES dress_order(id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE,
     FOREIGN KEY (dress_id) REFERENCES dress(id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 );
 
 CREATE TABLE favorites (
 	id INT PRIMARY KEY IDENTITY(1,1),
 	customer_id INT NOT NULL,
     dress_id INT NOT NULL,
-    FOREIGN KEY (customer_id) REFERENCES customer(id),
+    FOREIGN KEY (customer_id) REFERENCES customer(id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE,
     FOREIGN KEY (dress_id) REFERENCES dress(id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 )
 
 
