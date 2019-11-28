@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using API_DbAccess;
 
 namespace api.model {
     public class Order
@@ -17,7 +18,7 @@ namespace api.model {
         public bool IsValid { get; set; }
         public int CustomerId { get; set; }
 
-        public virtual Customer Customer { get; set; }
+        public virtual API_DbAccess.Customer Customer { get; set; }
         public virtual ICollection<OrderLine> OrderLine { get; set; }
     }
 }

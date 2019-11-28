@@ -20,10 +20,10 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Dress> Get()
+       /* public IEnumerable<Dress> Get()
         {
             
-        }
+        }*/
 
         [HttpPost]
         public void Post([FromBody] Dress dress) {

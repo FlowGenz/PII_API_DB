@@ -17,12 +17,18 @@ namespace api.Controllers
 
         public CustomerController(PII_DBContext dbContext) : base(dbContext)
         {
+            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
         [HttpGet]
-        public IEnumerable<Customer> Get()
+        public ActionResult<IEnumerable<Customer>> Get()
         {
-            
+            IEnumerable<Customer> customers = dbContext.Customer.ToList();
+
+            if (customers.Any()) {
+                return Ok(customers);
+            }
+            return NotFound("No customer found");
         }
 
         [HttpPost]
