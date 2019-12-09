@@ -32,6 +32,7 @@ CREATE TABLE dress (
     availible BIT NOT NULL,
     date_begin_available DATE NOT NULL,
     date_end_available DATE NOT NULL,
+    urlImage VARCHAR(255) NOT NULL,
     partners_id INT NOT NULL,
     FOREIGN KEY (partners_id) REFERENCES partners(id)
     ON UPDATE CASCADE
