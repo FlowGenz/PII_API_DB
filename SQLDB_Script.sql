@@ -16,6 +16,7 @@ CREATE TABLE partners(
     email VARCHAR(50) NOT NULL UNIQUE,
     phone_number VARCHAR(16) NOT NULL UNIQUE,
     partner_address VARCHAR(50),
+    username_user VARCHAR(50) NOT NULL,
     FOREIGN KEY (username_user) REFERENCES users(username)
     ON UPDATE CASCADE
     ON DELETE CASCADE
@@ -29,9 +30,8 @@ CREATE TABLE customer (
     phone_number VARCHAR(16) UNIQUE,
     customer_address VARCHAR(50),
     fidelity_points INT NOT NULL,
+    username_user VARCHAR(50) NOT NULL,
     FOREIGN KEY (username_user) REFERENCES users(username)
-    ON UPDATE CASCADE
-    ON DELETE CASCADE
 );
 
 CREATE TABLE dress (
