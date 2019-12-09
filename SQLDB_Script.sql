@@ -3,25 +3,35 @@ CREATE TABLE sentences_of_the_day(
     sentence VARCHAR(50) NOT NULL UNIQUE
 );
 
+CREATE TABLE users (
+    username VARCHAR(50) PRIMARY KEY,
+    user_password VARCHAR(60) NOT NULL,
+    privilege VARCHAR(50) NOT NULL
+)
+
 CREATE TABLE partners(
 	id INT PRIMARY KEY IDENTITY(1,1),
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     email VARCHAR(50) NOT NULL UNIQUE,
     phone_number VARCHAR(16) NOT NULL UNIQUE,
-    partner_address VARCHAR(50)
+    partner_address VARCHAR(50),
+    FOREIGN KEY (username_user) REFERENCES users(username)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 );
 
 CREATE TABLE customer (
     id INT PRIMARY KEY IDENTITY(1,1),
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
-    username VARCHAR(50) NOT NULL,
-    customer_password VARCHAR(60) NOT NULL,
     email VARCHAR(30) NOT NULL UNIQUE,
     phone_number VARCHAR(16) UNIQUE,
     customer_address VARCHAR(50),
-    fidelity_points INT NOT NULL
+    fidelity_points INT NOT NULL,
+    FOREIGN KEY (username_user) REFERENCES users(username)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 );
 
 CREATE TABLE dress (
