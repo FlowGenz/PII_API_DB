@@ -14,13 +14,13 @@ namespace API_DbAccess
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string Username { get; set; }
-        public string CustomerPassword { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public string CustomerAddress { get; set; }
         public int FidelityPoints { get; set; }
+        public string UsernameUser { get; set; }
 
+        public virtual Users UsernameUserNavigation { get; set; }
         public virtual ICollection<DressOrder> DressOrder { get; set; }
         public virtual ICollection<Favorites> Favorites { get; set; }
     }

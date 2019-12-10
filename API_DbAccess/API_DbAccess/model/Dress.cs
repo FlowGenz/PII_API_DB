@@ -18,6 +18,7 @@ namespace API_DbAccess
         public bool Availible { get; set; }
         public DateTime DateBeginAvailable { get; set; }
         public DateTime DateEndAvailable { get; set; }
+        public string UrlImage { get; set; }
         public int PartnersId { get; set; }
 
         public virtual Partners Partners { get; set; }

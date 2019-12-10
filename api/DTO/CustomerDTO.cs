@@ -1,3 +1,5 @@
+using System;
+
 namespace DTO {
     public class Customer
     {
