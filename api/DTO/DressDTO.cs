@@ -1,9 +1,9 @@
 using System;
 
 namespace DTO {
-    public class Dress
+    public class DressDTO
     {
-        public Dress()
+        public DressDTO()
         {
         }
 

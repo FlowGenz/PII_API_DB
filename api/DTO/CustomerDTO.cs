@@ -1,9 +1,9 @@
 using System;
 
 namespace DTO {
-    public class Customer
+    public class CustomerDTO
     {
-        public Customer()
+        public CustomerDTO()
         {
         }
 

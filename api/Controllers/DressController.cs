@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using API_DbAccess;
+using DTO;
 
 namespace api.Controllers
 {
@@ -20,12 +22,17 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Dress>> Get()
+        public ActionResult<IEnumerable<DressDTO>> Get()
         {
-            IEnumerable<Dress> dresses = dbContext.Dress.ToList();
+            IEnumerable<Dress> dresses = dbContext.Dress.Include(p => p.Partners).ThenInclude(u => u.UsernameUserNavigation).ToList();
 
             if (dresses.Any()) {
-                return Ok(dresses);
+                List<DressDTO> dressesDTO = new List<DressDTO>();
+                foreach (Dress dress in dresses) {
+                    DressDTO dto = Mapper.MapDressToDTO(dress);
+                    dressesDTO.Add(dto);
+                }
+                return Ok(dressesDTO);
             }
             return NotFound("No dress found");
         }
