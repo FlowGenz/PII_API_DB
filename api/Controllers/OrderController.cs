@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using API_DbAccess;
+using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
@@ -21,6 +23,8 @@ namespace api.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<IEnumerable<DressOrder>> Get()
         {
             IEnumerable<DressOrder> orders = dbContext.DressOrder.ToList();
@@ -32,6 +36,8 @@ namespace api.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public void Post([FromBody] DressOrder order) {
 
         }

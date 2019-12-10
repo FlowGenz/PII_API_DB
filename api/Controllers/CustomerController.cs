@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using API_DbAccess;
 using DTO;
+using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
@@ -23,6 +25,8 @@ namespace api.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<IEnumerable<CustomerDTO>> Get()
         {
             IEnumerable<Customer> customers = dbContext.Customer.Include(u => u.UsernameUserNavigation).ToList();
@@ -39,6 +43,8 @@ namespace api.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<Customer> Post([FromBody] Customer customer) {
             //try {
                 dbContext.Add<Customer>(customer);
