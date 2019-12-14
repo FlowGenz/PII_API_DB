@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
+    [Produces("application/json")]
     [ApiController]
     [Route("[controller]")]
     public class OrderController : ApiController
@@ -22,6 +23,11 @@ namespace api.Controllers
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
+        /// <summary>
+        /// .!--.!--
+        /// </summary>
+        /// <response code="201">.!--.!--</response>
+        /// <response code="400">.!--.!--</response> 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -35,6 +41,12 @@ namespace api.Controllers
             return NotFound("No order found");
         }
 
+        /// <summary>
+        /// .!--.!--
+        /// </summary>
+        /// <param name="dress"></param>
+        /// <response code="201">.!--.!--</response>
+        /// <response code="400">.!--.!--</response> 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -1,4 +1,6 @@
 using System;
+using System.Reflection;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
+    [Produces("application/json")]
     [ApiController]
     [Route("[controller]")]
     public class CustomerController : ApiController
@@ -23,6 +26,11 @@ namespace api.Controllers
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
+        /// <summary>
+        /// Get all customer.
+        /// </summary>
+        /// <response code="201">Returns an IEnumerable of all customers</response>
+        /// <response code="400">If the item is null</response>            
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -36,6 +44,12 @@ namespace api.Controllers
             return NotFound("No customer found");
         }
 
+        /// <summary>
+        /// Add a customer.
+        /// </summary>
+        /// <param name="customer"></param> 
+        /// <response code="201">Returns the newly created Customer</response>
+        /// <response code="400">If the customer is null</response>            
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

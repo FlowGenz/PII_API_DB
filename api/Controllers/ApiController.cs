@@ -8,6 +8,7 @@ using API_DbAccess;
 
 namespace api.Controllers
 {
+    [Produces("application/json")]
     [ApiController]
     [Route("[controller]")]
     public class ApiController : ControllerBase
