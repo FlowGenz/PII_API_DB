@@ -3,9 +3,9 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace DTO {
-    public class Customer
+    public class CustomerDTO
     {
-        public Customer()
+        public CustomerDTO()
         {
         }
 

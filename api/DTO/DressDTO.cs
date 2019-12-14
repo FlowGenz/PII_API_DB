@@ -3,9 +3,9 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace DTO {
-    public class Dress
+    public class DressDTO
     {
-        public Dress()
+        public DressDTO()
         {
         }
 

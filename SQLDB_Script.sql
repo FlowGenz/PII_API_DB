@@ -38,7 +38,7 @@ CREATE TABLE dress (
     id INT PRIMARY KEY IDENTITY(1,1),
     dress_name VARCHAR(50) NOT NULL,
     describe VARCHAR(50) NOT NULL,
-    price DECIMAL NOT NULL,
+    price DECIMAL(6,2) NOT NULL,
     availible BIT NOT NULL,
     date_begin_available DATE NOT NULL,
     date_end_available DATE NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE order_line (
     id INT PRIMARY KEY IDENTITY(1,1),
     date_begin_location  DATE NOT NULL,
     date_end_location  DATE NOT NULL,
-    final_price DECIMAL NOT NULL,
+    final_price DECIMAL(6,2) NOT NULL,
     customer_id INT NOT NULL,
     dress_order_id INT NOT NULL,
     dress_id INT NOT NULL,
@@ -90,12 +90,26 @@ CREATE TABLE favorites (
     ON DELETE CASCADE
 )
 
-
+insert into users
+values ('flowgenz', '123456789', 'admin');
+insert into users
+values ('warrior5060', '987654321', 'admin');
+insert into users
+values ('partner1', '12456', 'partner');
 insert into customer
-values ('Florian', 'Janssens', 'flowgenz', '123456789', 'flowgenzyt@gmail.com', '470265668', 'chez moi', 100);
+values ('Florian', 'Janssens', 'flowgenzyt@gmail.com', '470265668', 'chez moi', 100, 'flowgenz');
 insert into customer
-values ('Joris', 'Zonowatnik', 'warrior5060', '987654321', 'uneadresse@gmail.com', 'je connais pas', 'chez lui', 0);
+values ('Joris', 'Zonowatnik', 'uneadresse@gmail.com', 'je connais pas', 'chez lui', 0, 'warrior5060');
+insert into partners
+values('Libelle', 'Jeannette', 'mail@mail.com', '045866212', 'Rue des partneaires', 'partner1');
 
+select * from customer, users where customer.username_user = users.username;
+select * from partners;
+
+insert into dress
+values('La robe de ouf', 'Une belle robe de ouf', 555.21, 1, '20191210', '20191225', 'url', 1);
+
+select * from dress;
 
 DROP TABLE sentences_of_the_day;
 DROP TABLE order_line;

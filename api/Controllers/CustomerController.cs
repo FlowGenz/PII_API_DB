@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using API_DbAccess;
+using DTO;
 using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
@@ -34,12 +35,17 @@ namespace api.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<IEnumerable<Customer>> Get()
+        public ActionResult<IEnumerable<CustomerDTO>> Get()
         {
-            IEnumerable<Customer> customers = dbContext.Customer.ToList();
+            IEnumerable<Customer> customers = dbContext.Customer.Include(u => u.UsernameUserNavigation).ToList();
 
             if (customers.Any()) {
-                return Ok(customers);
+                List<CustomerDTO> customersDTO = new List<CustomerDTO>();
+                foreach (Customer customer in customers) {
+                    CustomerDTO dto = Mapper.MapCustomerToDTO(customer);
+                    customersDTO.Add(dto);
+                }
+                return Ok(customersDTO);
             }
             return NotFound("No customer found");
         }
