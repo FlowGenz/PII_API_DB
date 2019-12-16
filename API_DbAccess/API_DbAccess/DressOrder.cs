@@ -16,9 +16,9 @@ namespace API_DbAccess
         public string BillingAddress { get; set; }
         public string DeliveryAddress { get; set; }
         public bool IsValid { get; set; }
-        public int CustomerId { get; set; }
+        public int UserId { get; set; }
 
-        public virtual Customer Customer { get; set; }
+        public virtual User User { get; set; }
         public virtual ICollection<OrderLine> OrderLine { get; set; }
     }
 }

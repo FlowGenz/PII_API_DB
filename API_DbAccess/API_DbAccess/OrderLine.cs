@@ -9,7 +9,7 @@ namespace API_DbAccess
         public DateTime DateBeginLocation { get; set; }
         public DateTime DateEndLocation { get; set; }
         public decimal FinalPrice { get; set; }
-        public int CustomerId { get; set; }
+        public int UserId { get; set; }
         public int DressOrderId { get; set; }
         public int DressId { get; set; }
 
