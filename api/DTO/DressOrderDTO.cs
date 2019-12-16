@@ -17,13 +17,14 @@ namespace DTO {
         [Required]
         public DateTime DeliveryDate { get; set; }
         [Required]
-        public DateTime BillingAddress { get; set; }
+        public string BillingAddress { get; set; }
         [Required]
-        public DateTime DeliveryAddress { get; set; }
+        public string DeliveryAddress { get; set; }
         [Required]
         public bool IsValid { get; set; }
         [Required]
         public int CustomerId { get; set;}
+        [Required]
         public string CustomerName { get; set; }
     }
 }

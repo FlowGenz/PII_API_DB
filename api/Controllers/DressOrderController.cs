@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using API_DbAccess;
+using DTO;
 using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
@@ -33,10 +34,15 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<IEnumerable<DressOrder>> Get()
         {
-            IEnumerable<DressOrder> orders = dbContext.DressOrder.ToList();
+            IEnumerable<DressOrder> dressOrders = dbContext.DressOrder.ToList();
 
-            if (orders.Any()) {
-                return Ok(orders);
+            if (dressOrders.Any()) {
+                List<DressOrderDTO> dressesOrdersDTO = new List<DressOrderDTO>();
+                foreach (DressOrder dressOrder in dressOrders) {
+                    DressOrderDTO dto = Mapper.MapOrderToDTO(dressOrder);
+                    dressesOrdersDTO.Add(dto);
+                }
+                return Ok(dressesOrdersDTO);
             }
             return NotFound("No order found");
         }

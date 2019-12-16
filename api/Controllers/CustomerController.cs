@@ -59,7 +59,7 @@ namespace api.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<Customer> Post([FromBody] Customer customer) {
+        public ActionResult<Customer> Post([FromQuery] Customer customer) {
             //try {
                 dbContext.Add<Customer>(customer);
                 dbContext.SaveChanges();
