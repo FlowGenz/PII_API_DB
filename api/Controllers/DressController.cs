@@ -34,7 +34,7 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<IEnumerable<DressDTO>> Get()
         {
-            IEnumerable<Dress> dresses = dbContext.Dress.Include(p => p.Partners).ThenInclude(u => u.UsernameUserNavigation).ToList();
+            IEnumerable<Dress> dresses = dbContext.Dress.Include(u => u.User).ToList();
 
             if (dresses.Any()) {
                 List<DressDTO> dressesDTO = new List<DressDTO>();

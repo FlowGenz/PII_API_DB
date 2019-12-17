@@ -37,11 +37,11 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<IEnumerable<PartnerDTO>> Get()
         {
-            IEnumerable<Partners> partners = dbContext.Partners.Include(u => u.UsernameUserNavigation).ToList();
+            IEnumerable<User> partners = dbContext.User.ToList();
 
             if (partners.Any()) {
                 List<PartnerDTO> partnerDTOs = new List<PartnerDTO>();
-                foreach (Partners partner in partners) {
+                foreach (User partner in partners) {
                     PartnerDTO dto = Mapper.MapPartnerToDTO(partner);
                     partnerDTOs.Add(dto);
                 }

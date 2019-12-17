@@ -4,7 +4,10 @@ namespace DTO {
         public FavoriteDTO()
         {
         }
-
         
+        public int Id {get; set;}
+        public string UrlImage {get; set;}
+        public string DressName {get; set;}
+        public double DressPrice {get; set;}
     }
 } 

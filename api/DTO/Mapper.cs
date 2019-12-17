@@ -4,17 +4,17 @@ using API_DbAccess;
 namespace DTO {
     public static class Mapper
     {
-        public static CustomerDTO MapCustomerToDTO(Customer customer) {
+        public static CustomerDTO MapCustomerToDTO(User customer) {
             CustomerDTO dto = new CustomerDTO();
             dto.Id = customer.Id;
             dto.FirstName = customer.FirstName;
             dto.LastName = customer.LastName;
-            dto.FidelityPoints = customer.FidelityPoints;
+            dto.LoyaltyPoints = (int)customer.LoyaltyPoints;
             dto.Email = customer.Email;
             dto.PhoneNumber = customer.PhoneNumber;
-            dto.CustomerAddress = customer.CustomerAddress;
-            dto.Username = customer.UsernameUserNavigation.Username;
-            dto.CustomerPassword = customer.UsernameUserNavigation.UserPassword;
+            dto.CustomerAddress = customer.UserAddress;
+            dto.Username = customer.Username;
+            dto.CustomerPassword = customer.UserPassword;
             return dto;
         }
 
@@ -24,11 +24,11 @@ namespace DTO {
             dto.DressName = dress.DressName;
             dto.Describe = dress.Describe;
             dto.Price = dress.Price;
-            dto.Availible = dress.Availible;
+            dto.Available = dress.Available;
             dto.DateBeginAvailable = dress.DateBeginAvailable;
             dto.DateEndAvailable = dress.DateEndAvailable;
-            dto.PartnerId = dress.Partners.Id;
-            dto.PartnerName = dress.Partners.UsernameUserNavigation.Username;
+            dto.PartnerId = dress.User.Id;
+            dto.PartnerName = dress.User.Username;
             return dto;
         }
 
@@ -40,14 +40,24 @@ namespace DTO {
             dto.DeliveryAddress = dressOrder.DeliveryAddress;
             dto.DeliveryDate = dressOrder.DeliveryDate;
             dto.IsValid = dressOrder.IsValid;
-            dto.CustomerId = dressOrder.Customer.Id;
-            dto.CustomerName = dressOrder.Customer.FirstName + " " + dressOrder.Customer.LastName;
+            dto.CustomerId = dressOrder.User.Id;
+            dto.CustomerName = dressOrder.User.FirstName + " " + dressOrder.User.LastName;
             return dto;
         }
 
-        public static PartnerDTO MapPartnerToDTO(Partners partner) {
+        public static PartnerDTO MapPartnerToDTO(User partner) {
             PartnerDTO dto = new PartnerDTO();
-            dto.Username = partner.UsernameUser;
+            dto.Id = partner.Id;
+            dto.Username = partner.Username;
+            return dto;
+        }
+
+         public static FavoriteDTO MapFavoriteToDTO(Favorites favorite) {
+            FavoriteDTO dto = new FavoriteDTO();
+            dto.Id = favorite.Id;
+            dto.DressName = favorite.Dress.DressName;
+            dto.DressPrice = favorite.Dress.Price;
+            dto.UrlImage = favorite.Dress.UrlImage;
             return dto;
         }
     }

@@ -19,6 +19,6 @@ namespace DTO {
         public string PhoneNumber { get; set; }
         public string CustomerAddress { get; set; }
         [DefaultValue(0)]
-        public int FidelityPoints { get; set; }
+        public int LoyaltyPoints { get; set; }
     }
 }

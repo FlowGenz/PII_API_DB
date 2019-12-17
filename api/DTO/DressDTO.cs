@@ -18,7 +18,7 @@ namespace DTO {
         [Required]
         public decimal Price { get; set; }
         [Required]
-        public bool Availible { get; set; }
+        public bool Available { get; set; }
         [Required]
         public DateTime DateBeginAvailable { get; set; }
         public DateTime DateEndAvailable { get; set; }

@@ -37,11 +37,11 @@ namespace api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<IEnumerable<CustomerDTO>> Get()
         {
-            IEnumerable<Customer> customers = dbContext.Customer.Include(u => u.UsernameUserNavigation).ToList();
+            IEnumerable<User> customers = dbContext.User.ToList();
 
             if (customers.Any()) {
                 List<CustomerDTO> customersDTO = new List<CustomerDTO>();
-                foreach (Customer customer in customers) {
+                foreach (User customer in customers) {
                     CustomerDTO dto = Mapper.MapCustomerToDTO(customer);
                     customersDTO.Add(dto);
                 }
@@ -59,14 +59,14 @@ namespace api.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<Customer> Post([FromQuery] Customer customer) {
+        public ActionResult<User> Post([FromQuery] User customer) {
             //try {
-                dbContext.Add<Customer>(customer);
+                dbContext.Add<User>(customer);
                 dbContext.SaveChanges();
             //} catch (DbUpdateException dbUpdateException) {
                 // return BadRequest(dbUpdateException);
             //}
-            return Created("PII_DB", customer);
+            return Created("PII_DB_IG", customer);
         }
     }
 }
