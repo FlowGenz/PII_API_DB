@@ -11,10 +11,12 @@ using Microsoft.EntityFrameworkCore;
 using API_DbAccess;
 using DTO;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Cors;
 
 namespace api.Controllers
 {
     [Produces("application/json")]
+    [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
     public class CustomerController : ApiController
