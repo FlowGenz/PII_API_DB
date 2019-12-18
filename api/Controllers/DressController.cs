@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
-    [Produces("application/json")]
     [ApiController]
     [Route("[controller]")]
     public class DressController : ApiController
