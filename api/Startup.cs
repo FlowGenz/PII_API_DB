@@ -41,7 +41,8 @@ namespace api
                 options => {
                     options.AddPolicy(MyAllowSpecificOrigins, builder => {
                         builder.WithOrigins("http://localhost:5000",
-                                "http://localhost:4200")
+                                "http://localhost:4200",
+                                "https://dressservice.azurewebsites.net")
                             .AllowAnyHeader()
                             .AllowAnyMethod();
                     });
@@ -49,7 +50,7 @@ namespace api
 
             services.AddControllers();
 
-            services.AddDbContext<PII_DBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DressDatabase")));
+            services.AddDbContext<PII_DBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DressDatabaseAzure")));
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
             {
@@ -80,7 +81,7 @@ namespace api
             //configuring Cross Origin Resource Sharing policy
             app.UseCors(MyAllowSpecificOrigins);
 
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
 
             app.UseRouting();
 

@@ -68,3 +68,8 @@ CREATE TABLE favorites (
     ON UPDATE CASCADE
     ON DELETE CASCADE
 )
+
+insert into _user 
+values ('Flowgenz', '123456', 'Florian', 'Janssens', 'flowgenzyt@gmail.com', '470265668', 'Jemeppe', 100);
+insert into _user 
+values ('Warrior5060', '123456', 'Joris', 'Zonowatnik', 'joris.zono@gmail.com', '470265684', 'Auvelais', 0);
