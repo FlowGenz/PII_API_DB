@@ -52,7 +52,7 @@ namespace DTO {
             return dto;
         }
 
-         public static FavoriteDTO MapFavoriteToDTO(Favorites favorite) {
+        public static FavoriteDTO MapFavoriteToDTO(Favorites favorite) {
             FavoriteDTO dto = new FavoriteDTO();
             dto.Id = favorite.Id;
             dto.DressName = favorite.Dress.DressName;
