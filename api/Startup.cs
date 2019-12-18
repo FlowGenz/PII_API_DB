@@ -20,6 +20,7 @@ namespace api
 {
     public class Startup
     {
+        private readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -29,14 +30,32 @@ namespace api
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        {
+        { 
+
+            services.AddMvc(option => option.EnableEndpointRouting = false)
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            // Add Cross Origin Resource support
+            //"https://wineservice.azurewebsites.net",
+            services.AddCors(
+                options => {
+                    options.AddPolicy(MyAllowSpecificOrigins, builder => {
+                        builder.WithOrigins("http://localhost:5000",
+                                "http://localhost:4200")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    });
+                });
+
             services.AddControllers();
+
             services.AddDbContext<PII_DBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DressDatabase")));
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
             });
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,7 +77,10 @@ namespace api
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            //configuring Cross Origin Resource Sharing policy
+            app.UseCors(MyAllowSpecificOrigins);
+
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 
