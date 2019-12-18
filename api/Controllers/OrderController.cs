@@ -18,10 +18,12 @@ namespace api.Controllers
     {
 
         private readonly PII_DBContext dbContext;
+        private readonly Mapper mapper;
 
         public OrderController(PII_DBContext dbContext) : base(dbContext)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            mapper = new Mapper();
         }
 
         /// <summary>
@@ -39,7 +41,7 @@ namespace api.Controllers
             if (dressOrders.Any()) {
                 List<DressOrderDTO> dressesOrdersDTO = new List<DressOrderDTO>();
                 foreach (DressOrder dressOrder in dressOrders) {
-                    DressOrderDTO dto = Mapper.MapOrderToDTO(dressOrder);
+                    DressOrderDTO dto = mapper.MapOrderToDTO(dressOrder);
                     dressesOrdersDTO.Add(dto);
                 }
                 return Ok(dressesOrdersDTO);

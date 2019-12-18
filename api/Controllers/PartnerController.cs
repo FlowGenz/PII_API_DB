@@ -21,10 +21,12 @@ namespace api.Controllers
     {
 
         private readonly PII_DBContext dbContext;
+        private readonly Mapper mapper;
 
         public PartnerController(PII_DBContext dbContext) : base(dbContext)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            mapper = new Mapper();
         }
 
         /// <summary>
@@ -42,7 +44,7 @@ namespace api.Controllers
             if (partners.Any()) {
                 List<PartnerDTO> partnerDTOs = new List<PartnerDTO>();
                 foreach (User partner in partners) {
-                    PartnerDTO dto = Mapper.MapPartnerToDTO(partner);
+                    PartnerDTO dto = mapper.MapPartnerToDTO(partner);
                     partnerDTOs.Add(dto);
                 }
                 return Ok(partnerDTOs);

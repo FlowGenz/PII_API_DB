@@ -18,11 +18,11 @@ namespace api.Controllers
     {
 
         private readonly PII_DBContext dbContext;
-        private readonly Mapper _mapper;
-        public DressController(PII_DBContext dbContext, Mapper mapper) : base(dbContext)
+        private readonly Mapper mapper;
+        public DressController(PII_DBContext dbContext) : base(dbContext)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _mapper = mapper;
+            mapper = new Mapper();
         }
 
         /// <summary>
@@ -31,27 +31,27 @@ namespace api.Controllers
         /// <response code="201">.!--.!--</response>
         /// <response code="400">.!--.!--</response> 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200Created)]
-        [ProducesResponseType(StatusCodes.Status404BadRequest)]
+        /*[ProducesResponseType(StatusCodes.Status200Created)]
+        [ProducesResponseType(StatusCodes.Status404BadRequest)]*/
         /*[ProducesResponseType(StatusCodes.Status401BadRequest)]*/
         public async Task<ActionResult<IEnumerable<DressDTO>>> Get()
         {
-            /*
+            
             //check userfound;
-            var userFound = await _userMgr.FindByNameAsync(username);
+            /*var userFound = await _userMgr.FindByNameAsync(username);
             if(userFound == null)
-                return Unauthorized();
+                return Unauthorized();*/
 
-            List<DressDTO> dresses = await dbContext.Dress
+            IEnumerable<DressDTO> dressesDTO = await dbContext.Dress
             .Include(u => u.User)
-            .Select(x => _mapper.MapDressToDTO(x))
+            .Select(x => mapper.MapDressToDTO(x))
             .ToListAsync();
 
-            if(!dresses.Any())
-                return NotFound();
+            if(!dressesDTO.Any())
+                return NotFound("No dress found");
 
-            return Ok(dressesDTO);*/
-            IEnumerable<Dress> dresses = dbContext.Dress.Include(u => u.User).ToList();
+            return Ok(dressesDTO);
+            /*IEnumerable<Dress> dresses = dbContext.Dress.Include(u => u.User).ToList();
 
             if (dresses.Any()) {
                 List<DressDTO> dressesDTO = new List<DressDTO>();
@@ -72,8 +72,8 @@ namespace api.Controllers
         /// <response code="201">.!--</response>
         /// <response code="400">.!--</response> 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        /*[ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]*/
         public void Post([FromBody] Dress dress) {
 
         }

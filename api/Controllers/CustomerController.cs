@@ -23,10 +23,12 @@ namespace api.Controllers
     {
 
         private readonly PII_DBContext dbContext;
+        private readonly Mapper mapper;
 
         public CustomerController(PII_DBContext dbContext) : base(dbContext)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            mapper = new Mapper();
         }
 
         /// <summary>
@@ -35,8 +37,8 @@ namespace api.Controllers
         /// <response code="201">Returns an IEnumerable of all customers</response>
         /// <response code="400">If the item is null</response>            
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status201Created)] //#warning Manque le type de retour, maus vais status code 200
-        [ProducesResponseType(StatusCodes.BadRequest)] //#warning Mauvais status code 404
+        /*[ProducesResponseType(StatusCodes.Status201Created)] //#warning Manque le type de retour, maus vais status code 200
+        [ProducesResponseType(StatusCodes.BadRequest)] //#warning Mauvais status code 404*/
         public ActionResult<IEnumerable<CustomerDTO>> Get()
         {
             IEnumerable<User> customers = dbContext.User.ToList(); //#warning utiliser l'async tastk & await
@@ -44,7 +46,7 @@ namespace api.Controllers
             if (customers.Any()) {
                 List<CustomerDTO> customersDTO = new List<CustomerDTO>();
                 foreach (User customer in customers) {
-                    CustomerDTO dto = Mapper.MapCustomerToDTO(customer);
+                    CustomerDTO dto = mapper.MapCustomerToDTO(customer);
                     customersDTO.Add(dto);
                 }
                 return Ok(customersDTO);
@@ -59,8 +61,8 @@ namespace api.Controllers
         /// <response code="201">Returns the newly created Customer</response>
         /// <response code="400">If the customer is null</response>            
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        /*[ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]*/
         public ActionResult<User> Post([FromQuery] User customer) { //#warning Pourquoi FromQuery et pas FromBody ?
                                                                     //#warning Pourquoi dire que tu fais un actionResult sur User ? Pourquoi le dévoiler ?
             //try {

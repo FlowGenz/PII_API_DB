@@ -2,9 +2,14 @@ using System;
 using API_DbAccess;
 
 namespace DTO {
-    public static class Mapper
+    public class Mapper
+    
     {
-        public static CustomerDTO MapCustomerToDTO(User customer) {
+        public Mapper() {
+
+        }
+        
+        public CustomerDTO MapCustomerToDTO(User customer) {
             CustomerDTO dto = new CustomerDTO();
             dto.Id = customer.Id;
             dto.FirstName = customer.FirstName;
@@ -18,7 +23,7 @@ namespace DTO {
             return dto;
         }
 
-        public static DressDTO MapDressToDTO(Dress dress) {
+        public DressDTO MapDressToDTO(Dress dress) {
             DressDTO dto = new DressDTO();
             dto.Id = dress.Id;
             dto.DressName = dress.DressName;
@@ -32,7 +37,7 @@ namespace DTO {
             return dto;
         }
 
-        public static DressOrderDTO MapOrderToDTO(DressOrder dressOrder) {
+        public DressOrderDTO MapOrderToDTO(DressOrder dressOrder) {
             DressOrderDTO dto = new DressOrderDTO();
             dto.Id = dressOrder.Id;
             dto.BillingAddress = dressOrder.BillingAddress;
@@ -45,14 +50,14 @@ namespace DTO {
             return dto;
         }
 
-        public static PartnerDTO MapPartnerToDTO(User partner) {
+        public PartnerDTO MapPartnerToDTO(User partner) {
             PartnerDTO dto = new PartnerDTO();
             dto.Id = partner.Id;
             dto.Username = partner.Username;
             return dto;
         }
 
-        public static FavoriteDTO MapFavoriteToDTO(Favorites favorite) {
+        public FavoriteDTO MapFavoriteToDTO(Favorites favorite) {
             FavoriteDTO dto = new FavoriteDTO();
             dto.Id = favorite.Id;
             dto.DressName = favorite.Dress.DressName;
