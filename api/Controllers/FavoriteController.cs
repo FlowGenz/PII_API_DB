@@ -30,8 +30,8 @@ namespace api.Controllers
         /// <response code="201">.!--.!--</response>
         /// <response code="400">.!--.!--</response> 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status201Created)] #warning 200, type
+        [ProducesResponseType(StatusCodes.Status400BadRequest)] #warning 404, type
         public ActionResult<IEnumerable<FavoriteDTO>> Get()
         {
             IEnumerable<Favorites> favorites = dbContext.Favorites.ToList();

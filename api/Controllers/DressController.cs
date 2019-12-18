@@ -19,9 +19,11 @@ namespace api.Controllers
     {
 
         private readonly PII_DBContext dbContext;
-        public DressController(PII_DBContext dbContext) : base(dbContext)
+        private readonly Mapper _mapper;
+        public DressController(PII_DBContext dbContext, Mapper mapper) : base(dbContext)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -30,10 +32,26 @@ namespace api.Controllers
         /// <response code="201">.!--.!--</response>
         /// <response code="400">.!--.!--</response> 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<IEnumerable<DressDTO>> Get()
+        [ProducesResponseType(StatusCodes.Status200Created)]
+        [ProducesResponseType(StatusCodes.Status404BadRequest)]
+        /*[ProducesResponseType(StatusCodes.Status401BadRequest)]*/
+        public async Task<ActionResult<IEnumerable<DressDTO>>> Get()
         {
+            /*
+            //check userfound;
+            var userFound = await _userMgr.FindByNameAsync(username);
+            if(userFound == null)
+                return Unauthorized();
+
+            List<DressDTO> dresses = await dbContext.Dress
+            .Include(u => u.User)
+            .Select(x => _mapper.MapDressToDTO(x))
+            .ToListAsync();
+
+            if(!dresses.Any())
+                return NotFound();
+
+            return Ok(dressesDTO);*/
             IEnumerable<Dress> dresses = dbContext.Dress.Include(u => u.User).ToList();
 
             if (dresses.Any()) {
@@ -44,7 +62,8 @@ namespace api.Controllers
                 }
                 return Ok(dressesDTO);
             }
-            return NotFound("No dress found");
+
+            return NotFound("No dress found");*/
         }
 
         /// <summary>
