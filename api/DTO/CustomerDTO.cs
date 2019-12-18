@@ -21,6 +21,7 @@ namespace DTO {
         [Required]
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
+        #warning [Required]
         public string CustomerAddress { get; set; }
         [DefaultValue(0)]
         public int LoyaltyPoints { get; set; }

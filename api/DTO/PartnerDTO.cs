@@ -9,6 +9,7 @@ namespace DTO {
         {
             
         }
+        [Required]
         public int Id {get; set;}
         [Required]
         public string Username { get; set;}
