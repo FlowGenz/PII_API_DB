@@ -27,7 +27,7 @@ namespace DTO {
         public int PartnerId { get; set;}
         [Required]
         public string PartnerName { get; set; }
-
-        //url image ??
+        [Required]
+        public string UrlImage { get; set;}
     }
 } 

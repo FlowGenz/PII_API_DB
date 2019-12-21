@@ -18,7 +18,6 @@ namespace DTO {
         [Required]
         [MaxLength(50)]
         public string DressName {get; set;}
-        [Required]
         public decimal DressPrice {get; set;}
     }
 } 
