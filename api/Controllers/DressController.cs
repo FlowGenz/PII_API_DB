@@ -31,9 +31,9 @@ namespace api.Controllers
         /// <response code="201">.!--.!--</response>
         /// <response code="400">.!--.!--</response> 
         [HttpGet]
-        /*[ProducesResponseType(StatusCodes.Status200Created)]
-        [ProducesResponseType(StatusCodes.Status404BadRequest)]*/
-        /*[ProducesResponseType(StatusCodes.Status401BadRequest)]*/
+        [ProducesResponseType(typeof(Dress), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<DressDTO>>> Get()
         {
             
@@ -72,8 +72,9 @@ namespace api.Controllers
         /// <response code="201">.!--</response>
         /// <response code="400">.!--</response> 
         [HttpPost]
-        /*[ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]*/
+        [ProducesResponseType(typeof(Dress), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
         public void Post([FromBody] Dress dress) {
 
         }

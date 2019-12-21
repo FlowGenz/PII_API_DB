@@ -35,8 +35,9 @@ namespace api.Controllers
         /// <response code="201">Returns an IEnumerable of all partners</response>
         /// <response code="400">If the item is null</response>            
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(PartnerDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
         public ActionResult<IEnumerable<PartnerDTO>> Get()
         {
             IEnumerable<User> partners = dbContext.User.ToList();

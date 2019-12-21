@@ -10,8 +10,9 @@ namespace DTO {
             
         }
         [Required]
-        public int Id {get; set;}
+        public int Id {get; set; }
         [Required]
+        [MaxLength(50)]
         public string Username { get; set;}
     }
 }
