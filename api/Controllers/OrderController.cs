@@ -32,8 +32,9 @@ namespace api.Controllers
         /// <response code="201">.!--.!--</response>
         /// <response code="400">.!--.!--</response> 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(DressOrderDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<IEnumerable<DressOrder>> Get()
         {
             IEnumerable<DressOrder> dressOrders = dbContext.DressOrder.ToList();
@@ -56,9 +57,9 @@ namespace api.Controllers
         /// <response code="201">.!--.!--</response>
         /// <response code="400">.!--.!--</response> 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(int),StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public void Post([FromBody] DressOrder order) {
+        public void Post([FromBody] DressOrder dressOrder) {
 
         }
     }

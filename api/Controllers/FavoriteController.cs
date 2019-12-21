@@ -30,11 +30,12 @@ namespace api.Controllers
         /// <summary>
         /// .!--.!--
         /// </summary>
-        /// <response code="201">.!--.!--</response>
-        /// <response code="400">.!--.!--</response> 
+        /// <response code="200">.!--.!--</response>
+        /// <response code="404">.!--.!--</response> 
         [HttpGet]
-        /*[ProducesResponseType(StatusCodes.Status201Created)] //#warning 200, type
-        [ProducesResponseType(StatusCodes.Status400BadRequest)] //#warning 404, type*/
+        [ProducesResponseType(typeof(FavoriteDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<FavoriteDTO>>> Get()
         {
             IEnumerable<FavoriteDTO> favorites = await dbContext.Favorites
@@ -54,8 +55,9 @@ namespace api.Controllers
         /// <response code="201">.!--.!--</response>
         /// <response code="400">.!--.!--</response> 
         [HttpPost]
-        /*[ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]*/
+        [ProducesResponseType(typeof(FavoriteDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
         public void Post([FromBody] Favorites favorite) {
 
         }

@@ -11,8 +11,10 @@ namespace DTO {
 
         public int Id { get; set; }
         [Required]
+        [MaxLength(50)]
         public string DressName { get; set; }
         [Required]
+        [MaxLength(50)]
         public string Describe { get; set; }
         [Required]
         public decimal Price { get; set; }
@@ -25,5 +27,7 @@ namespace DTO {
         public int PartnerId { get; set;}
         [Required]
         public string PartnerName { get; set; }
+
+        //url image ??
     }
 } 

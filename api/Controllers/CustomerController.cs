@@ -37,8 +37,9 @@ namespace api.Controllers
         /// <response code="201">Returns an IEnumerable of all customers</response>
         /// <response code="400">If the item is null</response>            
         [HttpGet]
-        /*[ProducesResponseType(StatusCodes.Status201Created)] //#warning Manque le type de retour, maus vais status code 200
-        [ProducesResponseType(StatusCodes.BadRequest)] //#warning Mauvais status code 404*/
+        [ProducesResponseType(typeof(Customer), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
         public ActionResult<IEnumerable<CustomerDTO>> Get()
         {
             IEnumerable<User> customers = dbContext.User.ToList(); //#warning utiliser l'async tastk & await
@@ -61,9 +62,9 @@ namespace api.Controllers
         /// <response code="201">Returns the newly created Customer</response>
         /// <response code="400">If the customer is null</response>            
         [HttpPost]
-        /*[ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]*/
-        public ActionResult<User> Post([FromQuery] User customer) { //#warning Pourquoi FromQuery et pas FromBody ?
+        [ProducesResponseType(typeof(Customer), StatusCodes.Status201Created)] // si on renvoie juste l'id alors vaut changer le Customer en int
+        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
+        public ActionResult<User> Post([FromBody] User customer) { 
                                                                     //#warning Pourquoi dire que tu fais un actionResult sur User ? Pourquoi le dévoiler ?
             //try {
                 dbContext.Add<User>(customer); //#warning ajouter une verification de la creation en transaction

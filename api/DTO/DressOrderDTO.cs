@@ -25,6 +25,7 @@ namespace DTO {
         [Required]
         public int CustomerId { get; set;}
         [Required]
+        [MaxLength(50)]
         public string CustomerName { get; set; }
     }
 }
