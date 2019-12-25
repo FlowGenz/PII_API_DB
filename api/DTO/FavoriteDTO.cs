@@ -19,5 +19,7 @@ namespace DTO {
         public string DressName {get; set;}
         
         public decimal DressPrice {get; set;}
+        public int DressId { get; set;}
+        public int CustomerId {get; set;}
     }
 } 

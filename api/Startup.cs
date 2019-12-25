@@ -36,7 +36,6 @@ namespace api
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                 .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             // Add Cross Origin Resource support
-            //"https://wineservice.azurewebsites.net",
             services.AddCors(
                 options => {
                     options.AddPolicy(MyAllowSpecificOrigins, builder => {
