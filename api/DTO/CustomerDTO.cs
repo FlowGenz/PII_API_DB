@@ -32,7 +32,7 @@ namespace DTO {
         [Required]
         [MaxLength(50)]
         public string CustomerAddress { get; set; }
-        [DefaultValue(0)]
+        [RegularExpression("[0 - 9]+")]
         public int LoyaltyPoints { get; set; }
     }
 }

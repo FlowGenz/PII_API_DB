@@ -9,6 +9,8 @@ namespace DTO {
         {
         }
 
+        [Required]
+        [MaxLength(50)]
         public int Id { get; set; }
         [Required]
         [MaxLength(50)]
@@ -17,6 +19,7 @@ namespace DTO {
         [MaxLength(50)]
         public string Describe { get; set; }
         [Required]
+        [RegularExpression("[0-9]{1,4}.[0-9]{2}")]
         public decimal Price { get; set; }
         [Required]
         public bool Available { get; set; }
@@ -24,10 +27,14 @@ namespace DTO {
         public DateTime DateBeginAvailable { get; set; }
         public DateTime DateEndAvailable { get; set; }
         [Required]
+        [MaxLength(50)]
         public int PartnerId { get; set;}
         [Required]
+        [MaxLength(50)]
         public string PartnerName { get; set; }
         [Required]
+        [Url]
+        [MaxLength(255)]
         public string UrlImage { get; set;}
     }
 } 

@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace API_DbAccess
 {

@@ -28,55 +28,101 @@ namespace api.Controllers
         /// <summary>
         /// .!--.!--
         /// </summary>
-        /// <response code="201">.!--.!--</response>
+        /// <response code="200">.!--.!--</response>
         /// <response code="400">.!--.!--</response> 
         [HttpGet]
         [ProducesResponseType(typeof(Dress), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<DressDTO>>> Get()
         {
-            
+
             //check userfound;
             /*var userFound = await _userMgr.FindByNameAsync(username);
             if(userFound == null)
                 return Unauthorized();*/
 
             IEnumerable<DressDTO> dressesDTO = await dbContext.Dress
-            .Include(u => u.User)
-            .Select(x => mapper.MapDressToDTO(x))
-            .ToListAsync();
+                .Include(u => u.User)
+                .Select(x => mapper.MapDressToDTO(x))
+                .ToListAsync();
 
-            if(!dressesDTO.Any())
+            if (!dressesDTO.Any())
                 return NotFound("No dress found");
 
             return Ok(dressesDTO);
-            /*IEnumerable<Dress> dresses = dbContext.Dress.Include(u => u.User).ToList();
-
-            if (dresses.Any()) {
-                List<DressDTO> dressesDTO = new List<DressDTO>();
-                foreach (Dress dress in dresses) {
-                    DressDTO dto = Mapper.MapDressToDTO(dress);
-                    dressesDTO.Add(dto);
-                }
-                return Ok(dressesDTO);
-            }
-
-            return NotFound("No dress found");*/
         }
 
         /// <summary>
         /// .!--.!--.
         /// </summary>
         /// <param name="dress"></param> 
-        /// <response code="201">.!--</response>
+        /// <response code="200">.!--</response>
         /// <response code="400">.!--</response> 
         [HttpPost]
-        [ProducesResponseType(typeof(Dress), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
-        public void Post([FromBody] Dress dress) {
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ObjectResult>> Post([FromBody] Dress dress) {
 
+            if (dress.DateEndAvailable != null && dress.DateEndAvailable.CompareTo(dress.DateBeginAvailable) < 0)
+                return BadRequest("The date end available can not be early then the date begin available");
+
+            Dress dressFound = await dbContext.Dress.FirstOrDefaultAsync(d => d.DressName == dress.DressName);
+
+            if (dressFound != null)
+                return BadRequest("dress already exist");
+
+            dbContext.Dress.Add(dress);
+            return Ok("Dress added with success");
+        }
+
+        [HttpPut]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ObjectResult>> Put([FromBody] Dress dress)
+        {
+            Dress dressFound = await dbContext.Dress.FindAsync(dress.Id);
+
+            if (dressFound == null)
+                return NotFound("order does not exist");
+
+            try
+            {
+                dressFound.DressName = dress.DressName;
+                dressFound.Describe = dress.Describe;
+                dressFound.Available = dress.Available;
+                dressFound.DateBeginAvailable = dress.DateBeginAvailable;
+                dressFound.DateEndAvailable = dress.DateEndAvailable;
+                dressFound.Price = dress.Price;
+                //peut-on les changer ?
+                //dressFound.UrlImage = dress.UrlImage;
+                //dressFound.UserId == dress.UserId;
+                dbContext.Dress.Update(dressFound);
+                dbContext.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                var entry = ex.Entries.Single();
+                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+                return Conflict("Conflict detected, transation cancel");
+            }
+
+            return Ok("Dress updated with success");
+        }
+
+        [HttpDelete("{dressId}")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> Delete([FromBody] int dressId) {
+
+            Dress dressFound = await dbContext.Dress.FindAsync(dressId);
+
+            if (dressFound == null)
+                return NotFound("Dress does not exist");
+
+            dbContext.Dress.Remove(dressFound);
+            dbContext.SaveChanges();
+            return Ok("Dress deleted with success");
         }
     }
 }

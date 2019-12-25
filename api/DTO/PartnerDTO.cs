@@ -9,7 +9,6 @@ namespace DTO {
         {
             
         }
-        [Required]
         public int Id {get; set; }
         [Required]
         [MaxLength(50)]

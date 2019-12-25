@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace API_DbAccess
 {
@@ -11,15 +13,30 @@ namespace API_DbAccess
             OrderLine = new HashSet<OrderLine>();
         }
 
+        [Required]
+        [MaxLength(50)]
         public int Id { get; set; }
+        [Required]
+        [MaxLength(50)]
         public string DressName { get; set; }
+        [Required]
+        [MaxLength(50)]
         public string Describe { get; set; }
+        [Required]
+        [RegularExpression("[0-9]{1,4}.[0-9]{2}")]
         public decimal Price { get; set; }
+        [Required]
         public bool Available { get; set; }
+        [Required]
         public DateTime DateBeginAvailable { get; set; }
         public DateTime DateEndAvailable { get; set; }
+        [Required]
+        [Url]
+        [MaxLength(255)]
         public string UrlImage { get; set; }
-        public int? UserId { get; set; }
+        [Required]
+        [MaxLength(50)]
+        public int UserId { get; set; }
 
         public virtual User User { get; set; }
         public virtual ICollection<Favorites> Favorites { get; set; }

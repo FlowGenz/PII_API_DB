@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using API_DbAccess;
 using DTO;
 using Microsoft.AspNetCore.Http;
@@ -35,31 +34,52 @@ namespace api.Controllers
         [ProducesResponseType(typeof(DressOrderDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<DressOrder>> Get()
+        public async Task<ActionResult<IEnumerable<DressOrder>>> Get()
         {
-            IEnumerable<DressOrder> dressOrders = dbContext.DressOrder.ToList();
+            IEnumerable<DressOrderDTO> dressOrderDTO = await dbContext.DressOrder
+                .Select(x => mapper.MapOrderToDTO(x))
+                .ToListAsync();
 
-            if (dressOrders.Any()) {
-                List<DressOrderDTO> dressesOrdersDTO = new List<DressOrderDTO>();
-                foreach (DressOrder dressOrder in dressOrders) {
-                    DressOrderDTO dto = mapper.MapOrderToDTO(dressOrder);
-                    dressesOrdersDTO.Add(dto);
-                }
-                return Ok(dressesOrdersDTO);
-            }
-            return NotFound("No order found");
+            if (!dressOrderDTO.Any())
+                return NotFound("No order found");
+
+            return Ok(dressOrderDTO);
         }
 
         /// <summary>
         /// .!--.!--
         /// </summary>
-        /// <param name="dress"></param>
-        /// <response code="201">.!--.!--</response>
+        /// <param name="dressOrder"></param>
+        /// <response code="200">.!--.!--</response>
         /// <response code="400">.!--.!--</response> 
         [HttpPost]
-        [ProducesResponseType(typeof(int),StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public void Post([FromBody] DressOrder dressOrder) {
+        [ProducesResponseType(typeof(String), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ObjectResult>> Post([FromBody] DressOrder dressOrder) {
+
+            DressOrder dressOrderFound = await dbContext.DressOrder.FirstOrDefaultAsync(dO => dO.OrderLine == dressOrder.OrderLine && dO.UserId == dressOrder.UserId);
+
+            if (dressOrderFound != null)
+                return BadRequest("order already exist");
+
+            dbContext.DressOrder.Add(dressOrder);
+            dbContext.SaveChanges();
+            return Ok("Dress order added with success");
+        }
+
+        [HttpDelete]
+        [ProducesResponseType(typeof(String), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ObjectResult>> Delete([FromBody] int dressOrder) {
+
+            DressOrder dressOrderFound = await dbContext.DressOrder.FirstOrDefaultAsync(d => d.Id == dressOrder);
+
+            if (dressOrderFound == null)
+                return BadRequest("order does not exist");
+
+            dbContext.DressOrder.Remove(dressOrderFound);
+            dbContext.SaveChanges();
+            return Ok("Dress order added with success");
 
         }
     }

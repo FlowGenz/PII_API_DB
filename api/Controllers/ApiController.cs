@@ -21,7 +21,5 @@ namespace api.Controllers
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             mapper = new Mapper();
         }
-
-        
     }
 }

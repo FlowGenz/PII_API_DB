@@ -55,11 +55,33 @@ namespace api.Controllers
         /// <response code="201">.!--.!--</response>
         /// <response code="400">.!--.!--</response> 
         [HttpPost]
-        [ProducesResponseType(typeof(FavoriteDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
-        public void Post([FromBody] Favorites favorite) {
+        public async Task<ActionResult<ObjectResult>> Post([FromBody] Favorites favorite) {
 
+            Favorites favoriteFound = await dbContext.Favorites.FirstOrDefaultAsync(f => f.UserId == favorite.UserId && f.DressId == favorite.DressId);
+
+            if (favoriteFound != null)
+                return BadRequest("Favorite already exist");
+
+            dbContext.Favorites.Add(favorite);
+            dbContext.SaveChanges();
+            return Ok("Favorite added with success");
+        }
+
+        [HttpDelete("{favoriteID}")]
+        [ProducesResponseType(typeof(String), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ObjectResult>> Delete([FromBody] int favoriteID) {
+
+            Favorites favoritesFind = await dbContext.Favorites.FirstOrDefaultAsync(f => f.Id == favoriteID);
+
+            if (favoritesFind == null) 
+                return NotFound("Favorite not found");
+
+            dbContext.Favorites.Remove(favoritesFind);
+            dbContext.SaveChanges();
+            return Ok("Favorite deleted with success");
         }
     }
 }

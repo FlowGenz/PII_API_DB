@@ -9,7 +9,6 @@ namespace DTO {
         {
         }
 
-        [Required]
         public int Id {get; set;}
         [Required]
         [Url]
@@ -18,6 +17,7 @@ namespace DTO {
         [Required]
         [MaxLength(50)]
         public string DressName {get; set;}
+        
         public decimal DressPrice {get; set;}
     }
 } 

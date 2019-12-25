@@ -37,22 +37,19 @@ namespace api.Controllers
         /// <response code="201">Returns an IEnumerable of all customers</response>
         /// <response code="400">If the item is null</response>            
         [HttpGet]
-        [ProducesResponseType(typeof(Customer), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<CustomerDTO>> Get()
+        [ProducesResponseType(typeof(CustomerDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<IEnumerable<CustomerDTO>>> Get()
         {
-            IEnumerable<User> customers = dbContext.User.ToList(); //#warning utiliser l'async tastk & await
+            IEnumerable<CustomerDTO> customerDTO = await dbContext.User
+                .Select(x => mapper.MapCustomerToDTO(x))
+                .ToListAsync();
 
-            if (customers.Any()) {
-                List<CustomerDTO> customersDTO = new List<CustomerDTO>();
-                foreach (User customer in customers) {
-                    CustomerDTO dto = mapper.MapCustomerToDTO(customer);
-                    customersDTO.Add(dto);
-                }
-                return Ok(customersDTO);
-            }
-            return NotFound("No customer found");
+            if (!customerDTO.Any())
+                return NotFound("No customer found");
+
+            return Ok(customerDTO);
         }
 
         /// <summary>
@@ -62,17 +59,91 @@ namespace api.Controllers
         /// <response code="201">Returns the newly created Customer</response>
         /// <response code="400">If the customer is null</response>            
         [HttpPost]
-        [ProducesResponseType(typeof(Customer), StatusCodes.Status201Created)] // si on renvoie juste l'id alors vaut changer le Customer en int
-        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
-        public ActionResult<User> Post([FromBody] User customer) { 
-                                                                    //#warning Pourquoi dire que tu fais un actionResult sur User ? Pourquoi le dévoiler ?
-            //try {
-                dbContext.Add<User>(customer); //#warning ajouter une verification de la creation en transaction
+        [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+        public async Task<ActionResult> Post([FromBody] User customer)
+        {
+            User customerFound = await dbContext.User.FirstOrDefaultAsync(c => c.Username == customer.Username);
+
+            if (customerFound != null)
+                return BadRequest("Username already exist");
+
+            try {
+                dbContext.Add<User>(customer);
                 dbContext.SaveChanges();
-            //} catch (DbUpdateException dbUpdateException) {
-                // return BadRequest(dbUpdateException);
-            //}
-            return Created("PII_DB_IG", customer); //#warning renvoyer l'id, c'est inutile de renvoyer l'objet
+            }
+            catch (DbUpdateConcurrencyException ex) {
+                var entry = ex.Entries.Single();
+                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+                return Conflict("Conflict detected, transation cancel");
+            }
+
+            return Created("Customer created with success", customer.Id);
         }
+
+        [HttpPut]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+        public async Task<ActionResult> Put([FromBody] User customer)
+        {
+
+            User customerFound = await dbContext.User.FindAsync(customer.Id);
+
+            if (customerFound == null)
+                return NotFound("Customer does not exist");
+
+            try
+            {
+                customerFound.FirstName = customer.FirstName;
+                customerFound.LastName = customer.LastName;
+                customerFound.UserPassword = customer.UserPassword;
+                customerFound.Email = customer.Email;
+                customerFound.Username = customer.Username;
+                customerFound.UserAddress = customer.UserAddress;
+                customerFound.LoyaltyPoints = customer.LoyaltyPoints;
+                customerFound.DressOrder = customer.DressOrder;
+                customerFound.PhoneNumber = customer.PhoneNumber;
+                dbContext.User.Update(customerFound);
+                dbContext.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                var entry = ex.Entries.Single();
+                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+                return Conflict("Conflict detected, transation cancel");
+            }
+
+            return Ok("Customer updated with success");
+
+        }
+
+        [HttpDelete("{customerId}")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+        public async Task<ActionResult> Delete(int customerId)
+        {
+            User customerFound = await dbContext.User.FindAsync(customerId);
+
+            if (customerFound == null)
+                return NotFound("Customer does not exist");
+            try
+            {
+                dbContext.User.Remove(customerFound);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                var entry = ex.Entries.Single();
+                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+                return Conflict("Conflict detected, transation cancel");
+            }
+
+
+            return Ok("Customer deleted with success");
+        }
+
     }
 }

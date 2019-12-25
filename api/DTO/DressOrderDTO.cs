@@ -9,8 +9,6 @@ namespace DTO {
         {
             
         }
-
-        [Required]
         public int Id { get; set; }
         [Required]
         public DateTime BillingDate { get; set; }

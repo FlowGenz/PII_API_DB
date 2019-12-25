@@ -1,12 +1,8 @@
 using System;
-using System.Reflection;
-using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using API_DbAccess;
 using DTO;
@@ -14,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
-    [Produces("application/json")]
+    //[Produces("application/json")]
     [ApiController]
     [Route("[controller]")]
     public class PartnerController : ApiController
@@ -32,25 +28,23 @@ namespace api.Controllers
         /// <summary>
         /// Get all partners.
         /// </summary>
-        /// <response code="201">Returns an IEnumerable of all partners</response>
+        /// <response code="200">Returns an IEnumerable of all partners</response>
         /// <response code="400">If the item is null</response>            
         [HttpGet]
         [ProducesResponseType(typeof(PartnerDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<PartnerDTO>> Get()
+        public async Task<ActionResult<IEnumerable<PartnerDTO>>> Get()
         {
-            IEnumerable<User> partners = dbContext.User.ToList();
 
-            if (partners.Any()) {
-                List<PartnerDTO> partnerDTOs = new List<PartnerDTO>();
-                foreach (User partner in partners) {
-                    PartnerDTO dto = mapper.MapPartnerToDTO(partner);
-                    partnerDTOs.Add(dto);
-                }
-                return Ok(partnerDTOs);
-            }
-            return NotFound("No partner found");
+            IEnumerable<PartnerDTO> partnerDTO = await dbContext.User
+                //.Where() si user est un partenair
+                .Select(x => mapper.MapPartnerToDTO(x))
+                .ToListAsync();
+
+            if (!partnerDTO.Any())
+                return NotFound("No partner found");
+
+            return Ok(partnerDTO);
         }
     }
 }
