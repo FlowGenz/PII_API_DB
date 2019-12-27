@@ -19,8 +19,8 @@ namespace DTO {
             dto.Email = customer.Email;
             dto.PhoneNumber = customer.PhoneNumber;
             dto.CustomerAddress = customer.UserAddress;
-            dto.Username = customer.Username;
-            dto.CustomerPassword = customer.UserPassword;
+            dto.Username = customer.UserName;
+            dto.CustomerPassword = customer.PasswordHash;
             return dto;
         }
 
@@ -28,13 +28,14 @@ namespace DTO {
             DressDTO dto = new DressDTO();
             dto.Id = dress.Id;
             dto.DressName = dress.DressName;
-            dto.Describe = dress.Describe;
+            // a changer en description
+            //dto.Description = dress.Description;
             dto.Price = dress.Price;
             dto.Available = dress.Available;
             dto.DateBeginAvailable = dress.DateBeginAvailable;
             dto.DateEndAvailable = dress.DateEndAvailable;
-            dto.PartnerId = dress.User.Id;
-            dto.PartnerName = dress.User.Username;
+            //dto.PartnerId = dress.User.Id;
+            dto.PartnerName = dress.User.UserName;
             return dto;
         }
 
@@ -54,7 +55,7 @@ namespace DTO {
         public PartnerDTO MapPartnerToDTO(User partner) {
             PartnerDTO dto = new PartnerDTO();
             dto.Id = partner.Id;
-            dto.Username = partner.Username;
+            dto.Username = partner.UserName;
             return dto;
         }
 

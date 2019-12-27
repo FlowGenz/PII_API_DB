@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using API_DbAccess;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Cors;
 using DTO;
 
 namespace api.Controllers
@@ -57,7 +58,7 @@ namespace api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(String), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ObjectResult>> Post([FromBody] Favorites favorite) {
+        public async Task<ActionResult> Post([FromBody] Favorites favorite) {
 
             Favorites favoriteFound = await dbContext.Favorites.FirstOrDefaultAsync(f => f.UserId == favorite.UserId && f.DressId == favorite.DressId);
 
@@ -72,7 +73,7 @@ namespace api.Controllers
         [HttpDelete("{favoriteID}")]
         [ProducesResponseType(typeof(String), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ObjectResult>> Delete([FromBody] string favoriteID) {
+        public async Task<ActionResult> Delete([FromBody] string favoriteID) {
 
             Favorites favoritesFind = await dbContext.Favorites.FirstOrDefaultAsync(f => f.Id == favoriteID);
 

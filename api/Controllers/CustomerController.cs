@@ -9,17 +9,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using API_DbAccess;
-using DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Cors;
+using DTO;
 
 namespace api.Controllers
 {
     [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
-    public class CustomerController
+    public class CustomerController : ApiController
     {
+
 
         private readonly PII_DBContext dbContext;
         private readonly Mapper mapper;
@@ -63,7 +64,7 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         public async Task<ActionResult> Post([FromBody] User customer)
         {
-            User customerFound = await dbContext.User.FirstOrDefaultAsync(c => c.Username == customer.Username);
+            User customerFound = await dbContext.User.FirstOrDefaultAsync(c => c.UserName == customer.UserName);
 
             if (customerFound != null)
                 return BadRequest("Username already exist");
@@ -99,7 +100,7 @@ namespace api.Controllers
                 customerFound.LastName = customer.LastName;
                 customerFound.PasswordHash = customer.PasswordHash;
                 customerFound.Email = customer.Email;
-                customerFound.Username = customer.Username;
+                customerFound.UserName = customer.UserName;
                 customerFound.UserAddress = customer.UserAddress;
                 customerFound.LoyaltyPoints = customer.LoyaltyPoints;
                 customerFound.DressOrder = customer.DressOrder;

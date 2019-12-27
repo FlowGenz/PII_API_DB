@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using API_DbAccess;
 using DTO;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Cors;
 
 namespace api.Controllers
 {

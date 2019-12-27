@@ -1,6 +1,4 @@
 using System;
-using System.Reflection;
-using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -18,7 +16,7 @@ namespace api.Controllers
     [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
-    public class LoginController
+    public class LoginController : ApiController
     {
 
         private readonly PII_DBContext dbContext;
@@ -40,9 +38,10 @@ namespace api.Controllers
             if (userFound != null)
                 return BadRequest("Username already exist");*/
 
-            if(userLogin.Username == "FlowGenZ" && userLogin.Password == "77naruto77");
+            if(userLogin.Username == "FlowGenZ" && userLogin.Password == "77naruto77")
+                return Ok("Login with success");
 
-            return Ok("Login with success");
+            return BadRequest("Username or password incorrect");
         }
     }
 }

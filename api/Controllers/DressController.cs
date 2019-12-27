@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using API_DbAccess;
 using DTO;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Cors;
 
 namespace api.Controllers
 {
@@ -64,7 +65,7 @@ namespace api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ObjectResult>> Post([FromBody] Dress dress) {
+        public async Task<ActionResult> Post([FromBody] Dress dress) {
 
             if (dress.DateEndAvailable != null && dress.DateEndAvailable.CompareTo(dress.DateBeginAvailable) < 0)
                 return BadRequest("The date end available can not be early then the date begin available");
@@ -81,7 +82,7 @@ namespace api.Controllers
         [HttpPut]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ObjectResult>> Put([FromBody] Dress dress)
+        public async Task<ActionResult> Put([FromBody] Dress dress)
         {
             Dress dressFound = await dbContext.Dress.FindAsync(dress.Id);
 
