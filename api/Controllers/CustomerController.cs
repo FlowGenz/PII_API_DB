@@ -15,11 +15,10 @@ using Microsoft.AspNetCore.Cors;
 
 namespace api.Controllers
 {
-    [Produces("application/json")]
     [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
-    public class CustomerController : ApiController //#héritage pas utile
+    public class CustomerController
     {
 
         private readonly PII_DBContext dbContext;
@@ -98,7 +97,7 @@ namespace api.Controllers
             {
                 customerFound.FirstName = customer.FirstName;
                 customerFound.LastName = customer.LastName;
-                customerFound.UserPassword = customer.UserPassword;
+                customerFound.PasswordHash = customer.PasswordHash;
                 customerFound.Email = customer.Email;
                 customerFound.Username = customer.Username;
                 customerFound.UserAddress = customer.UserAddress;

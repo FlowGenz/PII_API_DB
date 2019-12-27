@@ -7,15 +7,11 @@ namespace API_DbAccess
 {
     public partial class Favorites
     {
+        public string Id { get; set; }
         [Required]
-        [MaxLength(50)]
-        public int Id { get; set; }
+        public string UserId { get; set; }
         [Required]
-        [MaxLength(50)]
-        public int UserId { get; set; }
-        [Required]
-        [MaxLength(50)]
-        public int DressId { get; set; }
+        public string DressId { get; set; }
 
         public virtual Dress Dress { get; set; }
         public virtual User User { get; set; }

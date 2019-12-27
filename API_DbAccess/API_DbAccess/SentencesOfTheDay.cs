@@ -7,9 +7,7 @@ namespace API_DbAccess
 {
     public partial class SentencesOfTheDay
     {
-        [Required]
-        [MaxLength(50)]
-        public int Id { get; set; }
+        public string Id { get; set; }
         [Required]
         [MaxLength(255)]
         public string Sentence { get; set; }

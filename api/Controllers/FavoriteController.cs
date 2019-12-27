@@ -12,7 +12,7 @@ using DTO;
 
 namespace api.Controllers
 {
-    //[Produces("application/json")]
+    [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
     public class FavoriteController : ApiController
@@ -72,7 +72,7 @@ namespace api.Controllers
         [HttpDelete("{favoriteID}")]
         [ProducesResponseType(typeof(String), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ObjectResult>> Delete([FromBody] int favoriteID) {
+        public async Task<ActionResult<ObjectResult>> Delete([FromBody] string favoriteID) {
 
             Favorites favoritesFind = await dbContext.Favorites.FirstOrDefaultAsync(f => f.Id == favoriteID);
 

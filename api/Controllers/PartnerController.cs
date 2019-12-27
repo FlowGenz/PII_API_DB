@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
-    //[Produces("application/json")]
+    [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
     public class PartnerController : ApiController

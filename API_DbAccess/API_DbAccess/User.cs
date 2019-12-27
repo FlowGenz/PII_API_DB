@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace API_DbAccess
 {
-    public partial class User
+    public partial class User : IdentityUser
     {
         public User()
         {
@@ -16,25 +17,10 @@ namespace API_DbAccess
 
         [Required]
         [MaxLength(50)]
-        public int Id { get; set; }
-        [Required]
-        [MaxLength(50)]
-        public string Username { get; set; }
-        [Required]
-        [MaxLength(60)]
-        [PasswordPropertyText]
-        public string UserPassword { get; set; }
-        [Required]
-        [MaxLength(50)]
         public string FirstName { get; set; }
         [Required]
         [MaxLength(50)]
         public string LastName { get; set; }
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
-        [Phone]
-        public string PhoneNumber { get; set; }
         [Required]
         [MaxLength(50)]
         public string UserAddress { get; set; }

@@ -13,9 +13,7 @@ namespace API_DbAccess
             OrderLine = new HashSet<OrderLine>();
         }
 
-        [Required]
-        [MaxLength(50)]
-        public int Id { get; set; }
+        public string Id { get; set; }
         [Required]
         [MaxLength(50)]
         public string DressName { get; set; }
@@ -35,8 +33,7 @@ namespace API_DbAccess
         [MaxLength(255)]
         public string UrlImage { get; set; }
         [Required]
-        [MaxLength(50)]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         public virtual User User { get; set; }
         public virtual ICollection<Favorites> Favorites { get; set; }

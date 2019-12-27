@@ -9,7 +9,8 @@ namespace DTO {
         {
         }
 
-        public int Id {get; set;}
+        [Required]
+        public string Id {get; set;}
         [Required]
         [Url]
         [MaxLength(255)]
@@ -17,9 +18,12 @@ namespace DTO {
         [Required]
         [MaxLength(50)]
         public string DressName {get; set;}
-        
+        [Required]
+        [RegularExpression("[0-9]{1,4}.[0-9]{2}")]
         public decimal DressPrice {get; set;}
-        public int DressId { get; set;}
-        public int CustomerId {get; set;}
+        [Required]
+        public string DressId { get; set;}
+        [Required]
+        public string CustomerId {get; set;}
     }
 } 

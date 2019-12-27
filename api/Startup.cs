@@ -47,6 +47,11 @@ namespace api
                     });
                 });
 
+            //Identity security
+            /*services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<DbContext>();*/
+
             services.AddControllers();
 
             services.AddDbContext<PII_DBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DressDatabase")));
@@ -54,8 +59,7 @@ namespace api
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
-            });
-            
+            });    
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

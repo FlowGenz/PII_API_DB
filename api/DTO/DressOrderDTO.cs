@@ -9,7 +9,7 @@ namespace DTO {
         {
             
         }
-        public int Id { get; set; }
+        public string Id { get; set; }
         [Required]
         public DateTime BillingDate { get; set; }
         [Required]
@@ -21,7 +21,7 @@ namespace DTO {
         [Required]
         public bool IsValid { get; set; }
         [Required]
-        public int CustomerId { get; set;}
+        public string CustomerId { get; set;}
         [Required]
         [MaxLength(50)]
         public string CustomerName { get; set; }

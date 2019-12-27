@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
+    [Produces("application/json")]
+    [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
     public class DressController : ApiController
@@ -94,9 +96,6 @@ namespace api.Controllers
                 dressFound.DateBeginAvailable = dress.DateBeginAvailable;
                 dressFound.DateEndAvailable = dress.DateEndAvailable;
                 dressFound.Price = dress.Price;
-                //peut-on les changer ?
-                //dressFound.UrlImage = dress.UrlImage;
-                //dressFound.UserId == dress.UserId;
                 dbContext.Dress.Update(dressFound);
                 dbContext.SaveChanges();
             }

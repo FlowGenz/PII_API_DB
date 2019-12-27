@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace api.Controllers
 {
-    [Produces("application/json")]
+    [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
     public class OrderController : ApiController
@@ -70,7 +70,7 @@ namespace api.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(String), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ObjectResult>> Delete([FromBody] int dressOrder) {
+        public async Task<ActionResult<ObjectResult>> Delete([FromBody] string dressOrder) {
 
             DressOrder dressOrderFound = await dbContext.DressOrder.FirstOrDefaultAsync(d => d.Id == dressOrder);
 

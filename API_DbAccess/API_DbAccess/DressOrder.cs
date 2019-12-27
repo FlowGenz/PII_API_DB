@@ -12,9 +12,7 @@ namespace API_DbAccess
             OrderLine = new HashSet<OrderLine>();
         }
 
-        [Required]
-        [MaxLength(50)]
-        public int Id { get; set; }
+        public string Id { get; set; }
         [Required]
         public DateTime BillingDate { get; set; }
         [Required]
@@ -28,8 +26,7 @@ namespace API_DbAccess
         [Required]
         public bool IsValid { get; set; }
         [Required]
-        [MaxLength(50)]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         public virtual User User { get; set; }
         public virtual ICollection<OrderLine> OrderLine { get; set; }
