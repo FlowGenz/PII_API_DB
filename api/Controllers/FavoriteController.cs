@@ -34,12 +34,12 @@ namespace api.Controllers
         [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<DressDTO>>> Get([FromBody] string customerID)
         {
-            IEnumerable<DressDTO> favoritesDress = await dbContext.Favorites.Where(x => x.UserId == c)
+            /*IEnumerable<DressDTO> favoritesDress = await dbContext.Favorites.Where(x => x.UserId == customerID)
             .Select(x => mapper.MapFavoriteToDTO(x))
-            .ToListAsync();
+            .ToListAsync();*/
 
-            if (favoritesDress.Any())
-                return Ok(favoritesDress);
+            //if (favoritesDress.Any())
+             //   return Ok(favoritesDress);
 
             return NotFound("No favorites found");
         }

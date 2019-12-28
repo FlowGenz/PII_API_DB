@@ -12,6 +12,7 @@ using API_DbAccess;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Cors;
 using DTO;
+using Microsoft.AspNetCore.Identity;
 
 namespace api.Controllers
 {
@@ -20,14 +21,16 @@ namespace api.Controllers
     [Route("[controller]")]
     public class CustomerController : ApiController
     {
-
-
+        private readonly RoleManager<IdentityRole> roleManager;
+        private readonly UserManager<User> userManager;
         private readonly PII_DBContext dbContext;
         private readonly Mapper mapper;
 
-        public CustomerController(PII_DBContext dbContext) : base(dbContext)
+        public CustomerController(PII_DBContext dbContext, RoleManager<IdentityRole> roleManager, UserManager<User> userManager) : base(dbContext)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            this.roleManager = roleManager;
+            this.userManager = userManager;
             mapper = new Mapper();
         }
 
@@ -42,7 +45,7 @@ namespace api.Controllers
                 .ToListAsync();
 
             if (!customerDTO.Any())
-                return NotFound("No customer found");
+                return NotFound("No customerDTO found");
 
             return Ok(customerDTO);
         }
@@ -51,24 +54,34 @@ namespace api.Controllers
         [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> Post([FromBody] User customer)
+        public async Task<ActionResult> Post([FromBody] CustomerDTO customerDTO)
         {
-            User customerFound = await dbContext.User.FirstOrDefaultAsync(c => c.UserName == customer.UserName);
+            User customerFound = await userManager.FindByNameAsync(customerDTO.Username);
 
             if (customerFound != null)
                 return BadRequest("Username already exist");
 
-            try {
-                dbContext.Add<User>(customer);
-                dbContext.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException ex) {
-                var entry = ex.Entries.Single();
-                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
-                return Conflict("Conflict detected, transation cancel");
+            User newUser = new User();
+
+            newUser.UserName = customerDTO.Username;
+            newUser.UserAddress = customerDTO.CustomerAddress;
+            newUser.LoyaltyPoints = customerDTO.LoyaltyPoints;
+            newUser.LastName = customerDTO.LastName;
+            newUser.FirstName = customerDTO.FirstName;
+            newUser.Email = customerDTO.Email;
+            newUser.PhoneNumber = customerDTO.PhoneNumber;
+
+            IdentityResult result = await userManager.CreateAsync(newUser, customerDTO.CustomerPassword);
+
+            if (result.Succeeded) {
+                await roleManager.CreateAsync(new IdentityRole("CUSTOMER"));
+                result = await userManager.AddToRoleAsync(newUser, "CUSTOMER");
             }
 
-            return Created("Customer created with success", customer.Id);
+            if (result.Succeeded)
+                return Created("Customer created with success", newUser.Id);
+
+            return BadRequest();
         }
 
         // pour les put revoir si ils recevoient des models ou des DTO 
@@ -76,36 +89,28 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> Put([FromBody] CustomerDTO customer)
+        public async Task<ActionResult> Put([FromBody] CustomerDTO customerDTO)
         {
 
-            User customerFound = await dbContext.User.FirstOrDefaultAsync(c => c.UserName == customer.Username);
+            User customerFound = await dbContext.User.FirstOrDefaultAsync(c => c.UserName == customerDTO.Username);
 
             if (customerFound == null)
                 return NotFound("Customer does not exist");
 
-            try
-            {
-                customerFound.FirstName = customer.FirstName;
-                customerFound.LastName = customer.LastName;
-                customerFound.PasswordHash = customer.CustomerPassword;
-                customerFound.Email = customer.Email;
-                customerFound.UserName = customer.Username;
-                customerFound.UserAddress = customer.CustomerAddress;
-                customerFound.LoyaltyPoints = customer.LoyaltyPoints;
-                customerFound.PhoneNumber = customer.PhoneNumber;
-                dbContext.User.Update(customerFound);
-                dbContext.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                var entry = ex.Entries.Single();
-                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
-                return Conflict("Conflict detected, transation cancel");
-            }
+            customerFound.FirstName = customerDTO.FirstName;
+            customerFound.LastName = customerDTO.LastName;
+            customerFound.PasswordHash = customerDTO.CustomerPassword;
+            customerFound.Email = customerDTO.Email;
+            customerFound.UserName = customerDTO.Username;
+            customerFound.UserAddress = customerDTO.CustomerAddress;
+            customerFound.LoyaltyPoints = customerDTO.LoyaltyPoints;
+            customerFound.PhoneNumber = customerDTO.PhoneNumber;
 
-            return Ok("Customer updated with success");
+            IdentityResult result = await userManager.UpdateAsync(customerFound);
 
+            if(result.Succeeded)
+                return Ok("Customer updated with success");
+            return BadRequest();
         }
 
         [HttpDelete("{customerId}")]
@@ -118,20 +123,13 @@ namespace api.Controllers
 
             if (customerFound == null)
                 return NotFound("Customer does not exist");
-            try
-            {
-                dbContext.User.Remove(customerFound);
-                await dbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                var entry = ex.Entries.Single();
-                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
-                return Conflict("Conflict detected, transation cancel");
-            }
 
+            IdentityResult result = await userManager.DeleteAsync(customerFound);
 
-            return Ok("Customer deleted with success");
+            if (result.Succeeded)
+                return Ok("Customer deleted with success");
+            return BadRequest();
+
         }
 
     }

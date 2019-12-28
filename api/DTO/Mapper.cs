@@ -29,11 +29,12 @@ namespace DTO {
             dto.DressName = dress.DressName;
             // a changer en description
             //dto.Description = dress.Description;
+            dto.Description = "Description yolo car ca marche pas";
             dto.Price = dress.Price;
             dto.Available = dress.Available;
             dto.DateBeginAvailable = dress.DateBeginAvailable;
             dto.DateEndAvailable = dress.DateEndAvailable;
-            //dto.PartnerId = dress.User.Id;
+            dto.PartnerId = dress.UserId;
             dto.PartnerName = dress.User.UserName;
             return dto;
         }

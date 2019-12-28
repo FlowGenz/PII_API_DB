@@ -17,7 +17,7 @@ namespace DTO {
         public string DressName { get; set; }
         [Required]
         [MaxLength(50)]
-        public string Describe { get; set; }
+        public string Description { get; set; }
         [Required]
         [RegularExpression("[0-9]{1,4}.[0-9]{2}")]
         public decimal Price { get; set; }
@@ -28,7 +28,7 @@ namespace DTO {
         public DateTime DateEndAvailable { get; set; }
         [Required]
         [MaxLength(50)]
-        public int PartnerId { get; set;}
+        public string PartnerId { get; set;}
         [Required]
         [MaxLength(50)]
         public string PartnerName { get; set; }

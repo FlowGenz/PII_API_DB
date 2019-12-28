@@ -28,11 +28,6 @@ namespace api.Controllers
             mapper = new Mapper();
         }
 
-        /// <summary>
-        /// .!--.!--
-        /// </summary>
-        /// <response code="200">.!--.!--</response>
-        /// <response code="400">.!--.!--</response> 
         [HttpGet]
         [ProducesResponseType(typeof(DressDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
