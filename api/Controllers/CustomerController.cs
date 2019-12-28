@@ -31,11 +31,6 @@ namespace api.Controllers
             mapper = new Mapper();
         }
 
-        /// <summary>
-        /// Get all customer.
-        /// </summary>
-        /// <response code="201">Returns an IEnumerable of all customers</response>
-        /// <response code="400">If the item is null</response>            
         [HttpGet]
         [ProducesResponseType(typeof(CustomerDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -51,13 +46,7 @@ namespace api.Controllers
 
             return Ok(customerDTO);
         }
-
-        /// <summary>
-        /// Add a customer.
-        /// </summary>
-        /// <param name="customer"></param> 
-        /// <response code="201">Returns the newly created Customer</response>
-        /// <response code="400">If the customer is null</response>            
+     
         [HttpPost]
         [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -82,14 +71,15 @@ namespace api.Controllers
             return Created("Customer created with success", customer.Id);
         }
 
+        // pour les put revoir si ils recevoient des models ou des DTO 
         [HttpPut]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> Put([FromBody] User customer)
+        public async Task<ActionResult> Put([FromBody] CustomerDTO customer)
         {
 
-            User customerFound = await dbContext.User.FindAsync(customer.Id);
+            User customerFound = await dbContext.User.FirstOrDefaultAsync(c => c.UserName == customer.Username);
 
             if (customerFound == null)
                 return NotFound("Customer does not exist");
@@ -98,12 +88,11 @@ namespace api.Controllers
             {
                 customerFound.FirstName = customer.FirstName;
                 customerFound.LastName = customer.LastName;
-                customerFound.PasswordHash = customer.PasswordHash;
+                customerFound.PasswordHash = customer.CustomerPassword;
                 customerFound.Email = customer.Email;
-                customerFound.UserName = customer.UserName;
-                customerFound.UserAddress = customer.UserAddress;
+                customerFound.UserName = customer.Username;
+                customerFound.UserAddress = customer.CustomerAddress;
                 customerFound.LoyaltyPoints = customer.LoyaltyPoints;
-                customerFound.DressOrder = customer.DressOrder;
                 customerFound.PhoneNumber = customer.PhoneNumber;
                 dbContext.User.Update(customerFound);
                 dbContext.SaveChanges();

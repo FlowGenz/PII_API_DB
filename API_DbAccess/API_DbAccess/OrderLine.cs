@@ -2,18 +2,23 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API_DbAccess
 {
     public partial class OrderLine
     {
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] 
         public string Id { get; set; }
-        [Required] 
+        [Required]
+        [DataType(DataType.Date)]
         public DateTime DateBeginLocation { get; set; }
-        [Required] 
+        [Required]
+        [DataType(DataType.Date)]
         public DateTime DateEndLocation { get; set; }
         [Required]
-        [RegularExpression("[0-9]{1,4}.[0-9]{2}")]
+        [Range(0, 9999.99)]
         public decimal FinalPrice { get; set; }
         [Required]
         public string UserId { get; set; }

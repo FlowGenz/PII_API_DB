@@ -28,46 +28,52 @@ namespace api.Controllers
             mapper = new Mapper();
         }
 
-        /// <summary>
-        /// .!--.!--
-        /// </summary>
-        /// <response code="200">.!--.!--</response>
-        /// <response code="404">.!--.!--</response> 
-        [HttpGet]
-        [ProducesResponseType(typeof(FavoriteDTO), StatusCodes.Status200OK)]
+        [HttpGet("{customerID}")]
+        [ProducesResponseType(typeof(DressDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<FavoriteDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<DressDTO>>> Get([FromBody] string customerID)
         {
-            IEnumerable<FavoriteDTO> favorites = await dbContext.Favorites
+            IEnumerable<DressDTO> favoritesDress = await dbContext.Favorites.Where(x => x.UserId == c)
             .Select(x => mapper.MapFavoriteToDTO(x))
             .ToListAsync();
 
-            if (favorites.Any()) {
-                return Ok(favorites);
-            }
+            if (favoritesDress.Any())
+                return Ok(favoritesDress);
+
             return NotFound("No favorites found");
         }
 
-        /// <summary>
-        /// .!--.!--
-        /// </summary>
-        /// <param name="favorite"></param>
-        /// <response code="201">.!--.!--</response>
-        /// <response code="400">.!--.!--</response> 
         [HttpPost]
-        [ProducesResponseType(typeof(String), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> Post([FromBody] Favorites favorite) {
+        public async Task<ActionResult> Post([FromBody] string dressId, string customerId) {
 
-            Favorites favoriteFound = await dbContext.Favorites.FirstOrDefaultAsync(f => f.UserId == favorite.UserId && f.DressId == favorite.DressId);
+            Favorites favoriteFound = await dbContext.Favorites.FirstOrDefaultAsync(f => f.UserId == customerId && f.DressId == dressId);
 
             if (favoriteFound != null)
                 return BadRequest("Favorite already exist");
 
-            dbContext.Favorites.Add(favorite);
+            User customerExist = await dbContext.User.FindAsync(customerId);
+            Dress dressExist = await dbContext.Dress.FindAsync(dressId);
+
+            if (customerExist == null && dressExist == null)
+                return BadRequest("Customer and dress do not exist");
+
+            if (customerExist == null)
+                return BadRequest("Customer does not exist");
+
+            if (dressExist == null)
+                return BadRequest("Dress does not exist");
+
+            Favorites newFavorite = new Favorites();
+
+            newFavorite.DressId = dressId;
+            newFavorite.UserId = customerId;
+
+            dbContext.Favorites.Add(newFavorite);
             dbContext.SaveChanges();
-            return Ok("Favorite added with success");
+            return Created("Favorite added with success", newFavorite.Id);
         }
 
         [HttpDelete("{favoriteID}")]

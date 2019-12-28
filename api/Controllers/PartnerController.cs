@@ -26,15 +26,10 @@ namespace api.Controllers
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             mapper = new Mapper();
         }
-
-        /// <summary>
-        /// Get all partners.
-        /// </summary>
-        /// <response code="200">Returns an IEnumerable of all partners</response>
-        /// <response code="400">If the item is null</response>            
+    
         [HttpGet]
         [ProducesResponseType(typeof(PartnerDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<PartnerDTO>>> Get()
         {
 
