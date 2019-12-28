@@ -33,10 +33,11 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Post([FromBody] LoginDTO userLogin)
         {
-            /*User userFound = await dbContext.User.FirstOrDefaultAsync(c => c.Username == userLogin.Username && c.PasswordHash == userLogin.Password);
+            // a revoir
+            User userFound = await dbContext.User.FirstOrDefaultAsync(c => c.UserName == userLogin.Username && c.PasswordHash == userLogin.Password);
 
             if (userFound != null)
-                return BadRequest("Username already exist");*/
+                return BadRequest("Username already exist");
 
             if(userLogin.Username == "FlowGenZ" && userLogin.Password == "77naruto77")
                 return Ok("Login with success");
