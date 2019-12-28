@@ -33,8 +33,8 @@ namespace api.Controllers
         /// <response code="400">.!--.!--</response> 
         [HttpGet]
         [ProducesResponseType(typeof(DressOrderDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<DressOrder>>> Get()
         {
             IEnumerable<DressOrderDTO> dressOrderDTO = await dbContext.DressOrder
@@ -69,8 +69,8 @@ namespace api.Controllers
         }
 
         [HttpDelete]
-        [ProducesResponseType(typeof(String), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ObjectResult>> Delete([FromBody] string dressOrder) {
 
             DressOrder dressOrderFound = await dbContext.DressOrder.FirstOrDefaultAsync(d => d.Id == dressOrder);

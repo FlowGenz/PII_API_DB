@@ -11,8 +11,6 @@ namespace DTO {
         }
 
         [Required]
-        public string Id { get; set; }
-        [Required]
         [MaxLength(50)]
         public string FirstName { get; set; }
         [Required]
@@ -31,7 +29,7 @@ namespace DTO {
         [Phone]
         public string PhoneNumber { get; set; }
         [Required]
-        [MaxLength(50)]
+        [MaxLength(100)]
         public string CustomerAddress { get; set; }
         [RegularExpression("[0-9]+")]
         public int LoyaltyPoints { get; set; }

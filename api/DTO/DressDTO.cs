@@ -13,6 +13,7 @@ namespace DTO {
         public string Id { get; set; }
         [Required]
         [MaxLength(50)]
+        [MinLength(2)]
         public string DressName { get; set; }
         [Required]
         [MaxLength(50)]

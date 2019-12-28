@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API_DbAccess
 {
@@ -13,24 +14,27 @@ namespace API_DbAccess
             OrderLine = new HashSet<OrderLine>();
         }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
         [Required]
         [MaxLength(50)]
+        [MinLength(2)]
         public string DressName { get; set; }
         [Required]
-        [MaxLength(50)]
-        public string Describe { get; set; }
+        [MaxLength(200)]
+        public string Description { get; set; }
         [Required]
-        [RegularExpression("[0-9]{1,4}.[0-9]{2}")]
+        [Range(0, 9999.99)]
         public decimal Price { get; set; }
         [Required]
         public bool Available { get; set; }
         [Required]
+        [DataType(DataType.Date)]
         public DateTime DateBeginAvailable { get; set; }
+        [DataType(DataType.Date)]
         public DateTime DateEndAvailable { get; set; }
         [Required]
         [Url]
-        [MaxLength(255)]
         public string UrlImage { get; set; }
         [Required]
         public string UserId { get; set; }

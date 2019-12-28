@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API_DbAccess
 {
@@ -12,16 +13,19 @@ namespace API_DbAccess
             OrderLine = new HashSet<OrderLine>();
         }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
         [Required]
+        [DataType(DataType.Date)]
         public DateTime BillingDate { get; set; }
         [Required]
+        [DataType(DataType.Date)]
         public DateTime DeliveryDate { get; set; }
         [Required]
-        [MaxLength(50)]
+        [MaxLength(100)]
         public string BillingAddress { get; set; }
         [Required]
-        [MaxLength(50)]
+        [MaxLength(100)]
         public string DeliveryAddress { get; set; }
         [Required]
         public bool IsValid { get; set; }

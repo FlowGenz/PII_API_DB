@@ -34,7 +34,7 @@ namespace api.Controllers
         /// <response code="200">.!--.!--</response>
         /// <response code="400">.!--.!--</response> 
         [HttpGet]
-        [ProducesResponseType(typeof(Dress), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(DressDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<DressDTO>>> Get()
@@ -56,12 +56,6 @@ namespace api.Controllers
             return Ok(dressesDTO);
         }
 
-        /// <summary>
-        /// .!--.!--.
-        /// </summary>
-        /// <param name="dress"></param> 
-        /// <response code="200">.!--</response>
-        /// <response code="400">.!--</response> 
         [HttpPost]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -75,13 +69,25 @@ namespace api.Controllers
             if (dressFound != null)
                 return BadRequest("dress already exist");
 
-            dbContext.Dress.Add(dress);
+            try
+            {
+                dbContext.Dress.Add(dress);
+                dbContext.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                var entry = ex.Entries.Single();
+                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+                return Conflict("Conflict detected, transation cancel");
+            }
+
             return Ok("Dress added with success");
         }
 
         [HttpPut]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         public async Task<ActionResult> Put([FromBody] Dress dress)
         {
             Dress dressFound = await dbContext.Dress.FindAsync(dress.Id);
@@ -120,8 +126,18 @@ namespace api.Controllers
             if (dressFound == null)
                 return NotFound("Dress does not exist");
 
-            dbContext.Dress.Remove(dressFound);
-            dbContext.SaveChanges();
+            try
+            {
+                dbContext.Dress.Remove(dressFound);
+                dbContext.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                var entry = ex.Entries.Single();
+                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+                return Conflict("Conflict detected, transation cancel");
+            }
+
             return Ok("Dress deleted with success");
         }
     }
