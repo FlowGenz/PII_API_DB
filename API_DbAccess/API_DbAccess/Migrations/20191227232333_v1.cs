@@ -11,9 +11,8 @@ namespace API_DbAccess.Migrations
                 name: "SentencesOfTheDay",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Sentence = table.Column<string>(nullable: true)
+                    Id = table.Column<string>(nullable: false),
+                    Sentence = table.Column<string>(maxLength: 255, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -24,15 +23,24 @@ namespace API_DbAccess.Migrations
                 name: "User",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Username = table.Column<string>(nullable: true),
-                    UserPassword = table.Column<string>(nullable: true),
-                    FirstName = table.Column<string>(nullable: true),
-                    LastName = table.Column<string>(nullable: true),
+                    Id = table.Column<string>(nullable: false),
+                    UserName = table.Column<string>(nullable: true),
+                    NormalizedUserName = table.Column<string>(nullable: true),
                     Email = table.Column<string>(nullable: true),
+                    NormalizedEmail = table.Column<string>(nullable: true),
+                    EmailConfirmed = table.Column<bool>(nullable: false),
+                    PasswordHash = table.Column<string>(nullable: true),
+                    SecurityStamp = table.Column<string>(nullable: true),
+                    ConcurrencyStamp = table.Column<string>(nullable: true),
                     PhoneNumber = table.Column<string>(nullable: true),
-                    UserAddress = table.Column<string>(nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
+                    LockoutEnabled = table.Column<bool>(nullable: false),
+                    AccessFailedCount = table.Column<int>(nullable: false),
+                    FirstName = table.Column<string>(maxLength: 50, nullable: false),
+                    LastName = table.Column<string>(maxLength: 50, nullable: false),
+                    UserAddress = table.Column<string>(maxLength: 50, nullable: false),
                     LoyaltyPoints = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
@@ -44,16 +52,15 @@ namespace API_DbAccess.Migrations
                 name: "Dress",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DressName = table.Column<string>(nullable: true),
-                    Describe = table.Column<string>(nullable: true),
+                    Id = table.Column<string>(nullable: false),
+                    DressName = table.Column<string>(maxLength: 50, nullable: false),
+                    Describe = table.Column<string>(maxLength: 50, nullable: false),
                     Price = table.Column<decimal>(nullable: false),
                     Available = table.Column<bool>(nullable: false),
                     DateBeginAvailable = table.Column<DateTime>(nullable: false),
                     DateEndAvailable = table.Column<DateTime>(nullable: false),
-                    UrlImage = table.Column<string>(nullable: true),
-                    UserId = table.Column<int>(nullable: true)
+                    UrlImage = table.Column<string>(maxLength: 255, nullable: false),
+                    UserId = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -63,21 +70,20 @@ namespace API_DbAccess.Migrations
                         column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "DressOrder",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<string>(nullable: false),
                     BillingDate = table.Column<DateTime>(nullable: false),
                     DeliveryDate = table.Column<DateTime>(nullable: false),
-                    BillingAddress = table.Column<string>(nullable: true),
-                    DeliveryAddress = table.Column<string>(nullable: true),
+                    BillingAddress = table.Column<string>(maxLength: 50, nullable: false),
+                    DeliveryAddress = table.Column<string>(maxLength: 50, nullable: false),
                     IsValid = table.Column<bool>(nullable: false),
-                    UserId = table.Column<int>(nullable: false)
+                    UserId = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -94,10 +100,9 @@ namespace API_DbAccess.Migrations
                 name: "Favorites",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(nullable: false),
-                    DressId = table.Column<int>(nullable: false)
+                    Id = table.Column<string>(nullable: false),
+                    UserId = table.Column<string>(nullable: false),
+                    DressId = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -113,21 +118,20 @@ namespace API_DbAccess.Migrations
                         column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
                 name: "OrderLine",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<string>(nullable: false),
                     DateBeginLocation = table.Column<DateTime>(nullable: false),
                     DateEndLocation = table.Column<DateTime>(nullable: false),
                     FinalPrice = table.Column<decimal>(nullable: false),
-                    UserId = table.Column<int>(nullable: false),
-                    DressOrderId = table.Column<int>(nullable: false),
-                    DressId = table.Column<int>(nullable: false)
+                    UserId = table.Column<string>(nullable: false),
+                    DressOrderId = table.Column<string>(nullable: false),
+                    DressId = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -143,7 +147,7 @@ namespace API_DbAccess.Migrations
                         column: x => x.DressOrderId,
                         principalTable: "DressOrder",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateIndex(

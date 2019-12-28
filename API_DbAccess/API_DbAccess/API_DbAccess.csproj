@@ -6,6 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20191227230743_v1.cs" />
+    <Compile Remove="Migrations\20191227230743_v1.Designer.cs" />
+    <Compile Remove="Migrations\20191227231241_v1.cs" />
+    <Compile Remove="Migrations\20191227231241_v1.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.0.1">
