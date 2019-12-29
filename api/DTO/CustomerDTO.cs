@@ -9,10 +9,7 @@ namespace DTO {
         {
 
         }
-
-        //[Required]
-        public string Id { get; set; }
-
+   
         [Required]
         [MaxLength(50)]
         public string FirstName { get; set; }
@@ -24,6 +21,7 @@ namespace DTO {
         public string Username { get; set; }
         [Required]
         [PasswordPropertyText]
+        //[RegularExpression("(?=^.{8,}$)((?=.*/d)|(?=.*/W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$")]
         public string CustomerPassword { get; set; }
         [Required]
         [EmailAddress]

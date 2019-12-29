@@ -12,7 +12,6 @@ namespace DTO {
         
         public CustomerDTO MapCustomerToDTO(User customer) {
             CustomerDTO dto = new CustomerDTO();
-            dto.Id = customer.Id;
             dto.FirstName = customer.FirstName;
             dto.LastName = customer.LastName;
             dto.LoyaltyPoints = (int)customer.LoyaltyPoints;
@@ -30,9 +29,11 @@ namespace DTO {
             dto.DressName = dress.DressName;
             dto.Description = dress.Description;
             dto.Price = dress.Price;
+            dto.Size = dress.Size;
             dto.Available = dress.Available;
             dto.DateBeginAvailable = dress.DateBeginAvailable;
             dto.DateEndAvailable = dress.DateEndAvailable;
+            dto.UrlImage = dress.UrlImage;
             dto.PartnerId = dress.UserId;
             dto.PartnerName = dress.User.UserName;
             return dto;
@@ -64,6 +65,7 @@ namespace DTO {
             dto.DressName = favorite.Dress.DressName;
             dto.DressPrice = favorite.Dress.Price;
             dto.UrlImage = favorite.Dress.UrlImage;
+            dto.Available = favorite.Dress.Available;
             return dto;
         }
     }

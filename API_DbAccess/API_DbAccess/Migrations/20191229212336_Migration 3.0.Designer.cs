@@ -4,14 +4,16 @@ using API_DbAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace API_DbAccess.Migrations
 {
     [DbContext(typeof(PII_DBContext))]
-    partial class PII_DBContextModelSnapshot : ModelSnapshot
+    [Migration("20191229212336_Migration 3.0")]
+    partial class Migration30
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,7 +33,7 @@ namespace API_DbAccess.Migrations
                     b.Property<DateTime>("DateBeginAvailable")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("DateEndAvailable")
+                    b.Property<DateTime>("DateEndAvailable")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
@@ -78,7 +80,7 @@ namespace API_DbAccess.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
 
-                    b.Property<DateTime?>("BillingDate")
+                    b.Property<DateTime>("BillingDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DeliveryAddress")
@@ -86,7 +88,7 @@ namespace API_DbAccess.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
 
-                    b.Property<DateTime?>("DeliveryDate")
+                    b.Property<DateTime>("DeliveryDate")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsValid")
@@ -132,10 +134,10 @@ namespace API_DbAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime?>("DateBeginLocation")
+                    b.Property<DateTime>("DateBeginLocation")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("DateEndLocation")
+                    b.Property<DateTime>("DateEndLocation")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DressId")
@@ -148,6 +150,10 @@ namespace API_DbAccess.Migrations
 
                     b.Property<decimal>("FinalPrice")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

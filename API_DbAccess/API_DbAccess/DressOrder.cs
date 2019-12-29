@@ -11,16 +11,15 @@ namespace API_DbAccess
         public DressOrder()
         {
             OrderLine = new HashSet<OrderLine>();
+            IsValid = false;
         }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
-        [Required]
         [DataType(DataType.Date)]
-        public DateTime BillingDate { get; set; }
-        [Required]
+        public DateTime? BillingDate { get; set; }
         [DataType(DataType.Date)]
-        public DateTime DeliveryDate { get; set; }
+        public DateTime? DeliveryDate { get; set; }
         [Required]
         [MaxLength(100)]
         public string BillingAddress { get; set; }

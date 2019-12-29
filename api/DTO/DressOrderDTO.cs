@@ -11,9 +11,9 @@ namespace DTO {
         }
         public string Id { get; set; }
         [Required]
-        public DateTime BillingDate { get; set; }
+        public DateTime? BillingDate { get; set; }
         [Required]
-        public DateTime DeliveryDate { get; set; }
+        public DateTime? DeliveryDate { get; set; }
         [Required]
         public string BillingAddress { get; set; }
         [Required]

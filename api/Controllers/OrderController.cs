@@ -8,6 +8,7 @@ using API_DbAccess;
 using DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Identity;
 
 namespace api.Controllers
 {
@@ -19,10 +20,12 @@ namespace api.Controllers
 
         private readonly PII_DBContext dbContext;
         private readonly Mapper mapper;
+        private readonly UserManager<User> userManager;
 
-        public OrderController(PII_DBContext dbContext) : base(dbContext)
+        public OrderController(PII_DBContext dbContext, UserManager<User> userManager) : base(dbContext)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            this.userManager = userManager;
             mapper = new Mapper();
         }
 
@@ -42,19 +45,89 @@ namespace api.Controllers
             return Ok(dressOrderDTO);
         }
 
+        [HttpGet("{username}")]
+        [ProducesResponseType(typeof(DressOrderDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<DressOrder>>> Get([FromRoute] string username)
+        {
+            User user = await userManager.FindByNameAsync(username);
+            if (User == null) {
+                return BadRequest("Customer does not exist");
+            }
+
+            DressOrder dressOrder = user.DressOrder.FirstOrDefault(d => !d.IsValid);
+
+            if (dressOrder == null)
+                return NotFound("No order found");
+
+            DressOrderDTO dressOrderDTO = mapper.MapOrderToDTO(dressOrder);
+
+            return Ok(dressOrderDTO);
+        }
+
         [HttpPost]
-        [ProducesResponseType(typeof(String), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ObjectResult>> Post([FromBody] DressOrder dressOrder) {
+        [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ObjectResult>> Post([FromBody] DressOrder orderLine)
+        {
 
-            DressOrder dressOrderFound = await dbContext.DressOrder.FirstOrDefaultAsync(dO => dO.OrderLine == dressOrder.OrderLine && dO.UserId == dressOrder.UserId);
+            User customerFind = await userManager.FindByNameAsync(orderLine.User.UserName);
+            if (customerFind == null)
+                return BadRequest("Customer does not exist");
 
-            if (dressOrderFound != null)
-                return BadRequest("order already exist");
+            DressOrder dressOrder = customerFind.DressOrder.FirstOrDefault(d => !d.IsValid);
+            if (dressOrder != null)
+                return BadRequest("The customer already have a order in use");
 
-            dbContext.DressOrder.Add(dressOrder);
-            dbContext.SaveChanges();
-            return Ok("Dress order added with success");
+            dressOrder = new DressOrder();
+            dressOrder.BillingAddress = customerFind.UserAddress;
+            dressOrder.DeliveryAddress = customerFind.UserAddress;
+            dressOrder.User = customerFind;
+            customerFind.DressOrder.Add(dressOrder);
+
+            try
+            {
+                await dbContext.DressOrder.AddAsync(dressOrder);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                var entry = ex.Entries.Single();
+                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+                return Conflict("Conflict detected, transation cancel");
+            }
+
+            return Created("Dress order added with success", dressOrder.Id);
+        }
+
+        [HttpPut]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+        public async Task<ActionResult> Put([FromBody] DressOrder orderLine)
+        {
+            User customerFind = await userManager.FindByNameAsync(orderLine.User.UserName);
+            if (customerFind == null)
+                return BadRequest("Customer does not exist");
+
+            DressOrder dressOrder = customerFind.DressOrder.FirstOrDefault(d => !d.IsValid);
+            if (dressOrder == null)
+                return BadRequest("The customer already have not a order in use");
+
+            try
+            {
+                dbContext.DressOrder.Update(dressOrder);
+                dbContext.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                var entry = ex.Entries.Single();
+                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+                return Conflict("Conflict detected, transation cancel");
+            }
+
+            return Ok("Order updated with success");
         }
 
         [HttpDelete]
@@ -67,8 +140,18 @@ namespace api.Controllers
             if (dressOrderFound == null)
                 return BadRequest("order does not exist");
 
-            dbContext.DressOrder.Remove(dressOrderFound);
-            dbContext.SaveChanges();
+            try
+            {
+                dbContext.DressOrder.Remove(dressOrderFound);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                var entry = ex.Entries.Single();
+                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+                return Conflict("Conflict detected, transation cancel");
+            }
+
             return Ok("Dress order added with success");
 
         }

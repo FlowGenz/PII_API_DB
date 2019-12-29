@@ -36,7 +36,7 @@ namespace api.Controllers
         public async Task<ActionResult<IEnumerable<PartnerDTO>>> Get()
         {
 
-            IEnumerable<User> users = await userManager.GetUsersInRoleAsync("PARTENER");
+            IEnumerable<User> users = await userManager.GetUsersInRoleAsync("PARTNER");
 
             if (!users.Any())
                 return NotFound("No partener found");

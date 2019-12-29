@@ -39,7 +39,6 @@ namespace api.Controllers
             
             User userFound = await userManager.FindByNameAsync(userLogin.Username);
 
-            // renvoyer les string dans les bad request séparer ou ensemble ?
             if (userFound != null)
                 return BadRequest("Username or password incorrect");
 
@@ -49,11 +48,6 @@ namespace api.Controllers
                 return BadRequest("Username or password incorrect");
 
             return Ok("Login with success");
-
-            //Pour test rapide
-            /*if (userLogin.Username == "FlowGenZ" && userLogin.Password == "77naruto77")
-                return Ok("Login with success");
-            return BadRequest("Username or password incorrect");*/
         }
     }
 }

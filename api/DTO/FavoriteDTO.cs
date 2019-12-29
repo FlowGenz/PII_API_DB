@@ -20,7 +20,9 @@ namespace DTO {
         public string DressName {get; set;}
         [Required]
         [RegularExpression("[0-9]{1,4}.[0-9]{2}")]
-        public decimal DressPrice {get; set;}
+        public decimal DressPrice {get; set; }
+        [Required]
+        public bool Available { get; set; }
         [Required]
         public string DressId { get; set;}
         [Required]

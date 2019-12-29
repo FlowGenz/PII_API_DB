@@ -10,6 +10,7 @@ using API_DbAccess;
 using DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Identity;
 
 namespace api.Controllers
 {
@@ -21,10 +22,12 @@ namespace api.Controllers
     {
 
         private readonly PII_DBContext dbContext;
+        private UserManager<User> userManager;
         private readonly Mapper mapper;
-        public DressController(PII_DBContext dbContext) : base(dbContext)
+        public DressController(PII_DBContext dbContext, UserManager<User> userManager) : base(dbContext)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            this.userManager = userManager;
             mapper = new Mapper();
         }
 
@@ -34,11 +37,6 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<DressDTO>>> Get()
         {
-
-            //check userfound;
-            /*var userFound = await _userMgr.FindByNameAsync(username);
-            if(userFound == null)
-                return Unauthorized();*/
 
             IEnumerable<DressDTO> dressesDTO = await dbContext.Dress
                 .Include(u => u.User)
@@ -51,23 +49,52 @@ namespace api.Controllers
             return Ok(dressesDTO);
         }
 
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(DressDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<DressDTO>> Get([FromRoute] string id)
+        {
+
+            //A changer
+
+
+            IEnumerable<DressDTO> dressesDTO = await dbContext.Dress
+                .Include(u => u.User)
+                .Select(x => mapper.MapDressToDTO(x))
+                .ToListAsync();
+
+            if (!dressesDTO.Any())
+                return NotFound("No dress found");
+
+            return Ok(dressesDTO.First());
+        }
+
         [HttpPost]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Post([FromBody] Dress dress) {
 
-            if (dress.DateEndAvailable != null && dress.DateEndAvailable.CompareTo(dress.DateBeginAvailable) < 0)
+            
+            if (dress.DateEndAvailable != null && DateTime.Compare((DateTime)dress.DateEndAvailable, dress.DateBeginAvailable) < 0)
                 return BadRequest("The date end available can not be early then the date begin available");
+
+            User patnerFound = await userManager.FindByIdAsync(dress.UserId);
+            if (patnerFound == null)
+                return BadRequest("Partner does not exist");
 
             Dress dressFound = await dbContext.Dress.FirstOrDefaultAsync(d => d.DressName == dress.DressName);
 
             if (dressFound != null)
                 return BadRequest("dress already exist");
 
+            dress.User = patnerFound;
+            patnerFound.Dress.Add(dress);
+
             try
             {
-                dbContext.Dress.Add(dress);
-                dbContext.SaveChanges();
+                await dbContext.Dress.AddAsync(dress);
+                await dbContext.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -88,7 +115,15 @@ namespace api.Controllers
             Dress dressFound = await dbContext.Dress.FindAsync(dress.Id);
 
             if (dressFound == null)
-                return NotFound("order does not exist");
+                return NotFound("Dress does not exist");
+
+            if (dressFound.DressName != dress.DressName){
+
+                Dress dressNameFound = await dbContext.Dress.FirstOrDefaultAsync(d => d.DressName == dress.DressName);
+
+                if (dressNameFound != null)
+                    return BadRequest("dress name already exist");
+            }
 
             try
             {
@@ -114,7 +149,7 @@ namespace api.Controllers
         [HttpDelete("{dressId}")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> Delete([FromBody] int dressId) {
+        public async Task<ActionResult> Delete([FromRoute] string dressId) {
 
             Dress dressFound = await dbContext.Dress.FindAsync(dressId);
 

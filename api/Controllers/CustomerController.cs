@@ -50,13 +50,13 @@ namespace api.Controllers
             return Ok(customerDTOs);
         }
 
-        [HttpGet("{customerId}")]
+        [HttpGet("{username}")]
         [ProducesResponseType(typeof(CustomerDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<CustomerDTO>>> Get([FromRoute] string customerId)
+        public async Task<ActionResult<IEnumerable<CustomerDTO>>> Get([FromRoute] string username)
         {
 
-            User user = await userManager.FindByIdAsync(customerId);
+            User user = await userManager.FindByNameAsync(username);
 
             if (user == null)
                 return NotFound("No customer found");
@@ -77,6 +77,14 @@ namespace api.Controllers
             if (customerFound != null)
                 return BadRequest("Username already exist");
 
+            User isEmailAvailib = await userManager.FindByEmailAsync(customerDTO.Email);
+            if (isEmailAvailib != null)
+                return BadRequest("email is already in use");
+
+            User isPhoneAvailib = await dbContext.Users.FirstOrDefaultAsync(u => u.PhoneNumber.Equals(customerDTO.PhoneNumber));
+            if (isPhoneAvailib != null)
+                return BadRequest("phone number is already in use");
+
             User newUser = new User();
 
             newUser.UserName = customerDTO.Username;
@@ -87,20 +95,11 @@ namespace api.Controllers
             newUser.Email = customerDTO.Email;
             newUser.PhoneNumber = customerDTO.PhoneNumber;
 
-            
-            User isEmailAvailib = await userManager.FindByEmailAsync(customerDTO.Email);
-            if(isEmailAvailib != null)
-                return BadRequest("email is already in use");
-
-            /*User isPhoneAvailib = await userManager.whe
-            if (isPhoneAvailib != null)
-                return BadRequest("phone number is already in use");*/
-
             IdentityResult result = await userManager.CreateAsync(newUser, customerDTO.CustomerPassword);
 
             if (!result.Succeeded)
-                return BadRequest(result.Errors.First().Description);
-            
+                return BadRequest();
+
             await roleManager.CreateAsync(new IdentityRole("CUSTOMER"));
             result = await userManager.AddToRoleAsync(newUser, "CUSTOMER");
 
@@ -118,14 +117,22 @@ namespace api.Controllers
         public async Task<ActionResult> Put([FromBody] CustomerDTO customerDTO)
         {
 
-            User customerFound = await userManager.FindByIdAsync(customerDTO.Id);
-
+            User customerFound = await userManager.FindByNameAsync(customerDTO.Username);
             if (customerFound == null)
                 return NotFound("Customer does not exist");
 
-            User isEmailAvailib = await userManager.FindByEmailAsync(customerDTO.Email);
-            if (isEmailAvailib != null)
-                return BadRequest("email is already in use");
+            if (customerFound.Email != customerDTO.Email) {
+                User isEmailAvailib = await userManager.FindByEmailAsync(customerDTO.Email);
+                if (isEmailAvailib != null)
+                    return BadRequest("email is already in use");
+            }
+
+            if (customerFound.PhoneNumber != customerDTO.PhoneNumber)
+            {
+                User isPhoneAvailib = await dbContext.Users.FirstOrDefaultAsync(u => u.PhoneNumber.Equals(customerDTO.PhoneNumber));
+                if (isPhoneAvailib != null)
+                    return BadRequest("phone number is already in use");
+            }
 
             customerFound.FirstName = customerDTO.FirstName;
             customerFound.LastName = customerDTO.LastName;
@@ -137,37 +144,28 @@ namespace api.Controllers
             customerFound.PhoneNumber = customerDTO.PhoneNumber;
 
             IdentityResult result = await userManager.UpdateAsync(customerFound);
-
             if(result.Succeeded)
                 return Ok("Customer updated with success");
             return BadRequest();
         }
 
-        [HttpDelete("{customerId}")]
+        [HttpDelete("{username}")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> Delete([FromRoute] string customerId)
+        public async Task<ActionResult> Delete([FromRoute] string username)
         {
-            User customerFound = await userManager.FindByIdAsync(customerId);
+            User customerFound = await userManager.FindByNameAsync(username);
          
             
             if (customerFound == null)
                 return NotFound("Customer does not exist");
-
-            //verification néccaisaire ?
-            bool isCustomer = await userManager.IsInRoleAsync(customerFound, "CUSTOMER");
-
-            if (!isCustomer)
-                return Unauthorized("Action unauthorized"); 
 
             IdentityResult result = await userManager.DeleteAsync(customerFound);
 
             if (result.Succeeded)
                 return Ok("Customer deleted with success");
             return BadRequest();
-
         }
-
     }
 }

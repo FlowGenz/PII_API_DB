@@ -10,6 +10,7 @@ using API_DbAccess;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Cors;
 using DTO;
+using Microsoft.AspNetCore.Identity;
 
 namespace api.Controllers
 {
@@ -21,22 +22,26 @@ namespace api.Controllers
 
         private readonly PII_DBContext dbContext;
         private readonly Mapper mapper;
+        private readonly UserManager<User> userManager;
 
-        public FavoriteController(PII_DBContext dbContext) : base(dbContext)
+        public FavoriteController(PII_DBContext dbContext, UserManager<User> userManager) : base(dbContext)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            this.userManager = userManager;
             mapper = new Mapper();
         }
 
-        //A refaire
-
-        [HttpGet("{customerID}")]
+        [HttpGet("{username}")]
         [ProducesResponseType(typeof(FavoriteDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<FavoriteDTO>>> Get([FromBody] string customerID)
+        public async Task<ActionResult<IEnumerable<FavoriteDTO>>> Get([FromBody] string username)
         {
-            IEnumerable<FavoriteDTO> favoritesDress = await dbContext.Favorites.Where(x => x.UserId == customerID)
+            User user = await userManager.FindByNameAsync(username);
+            if (user == null)
+                return BadRequest("Customer does not exist");
+
+            IEnumerable<FavoriteDTO> favoritesDress = await dbContext.Favorites.Where(x => x.UserId == user.Id)
             .Select(x => mapper.MapFavoriteToDTO(x))
             .ToListAsync();
 
@@ -83,12 +88,12 @@ namespace api.Controllers
         [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Delete([FromBody] string favoriteID) {
 
-            Favorites favoritesFind = await dbContext.Favorites.FirstOrDefaultAsync(f => f.Id == favoriteID);
+            Favorites favoriteFind = await dbContext.Favorites.FirstOrDefaultAsync(f => f.Id == favoriteID);
 
-            if (favoritesFind == null) 
+            if (favoriteFind == null) 
                 return NotFound("Favorite not found");
 
-            dbContext.Favorites.Remove(favoritesFind);
+            dbContext.Favorites.Remove(favoriteFind);
             dbContext.SaveChanges();
             return Ok("Favorite deleted with success");
         }

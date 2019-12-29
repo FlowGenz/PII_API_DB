@@ -27,12 +27,15 @@ namespace API_DbAccess
         [Range(0, 9999.99)]
         public decimal Price { get; set; }
         [Required]
+        [MaxLength(5)]
+        public string Size { get; set; }
+        [Required]
         public bool Available { get; set; }
         [Required]
         [DataType(DataType.Date)]
         public DateTime DateBeginAvailable { get; set; }
         [DataType(DataType.Date)]
-        public DateTime DateEndAvailable { get; set; }
+        public DateTime? DateEndAvailable { get; set; }
         [Required]
         [Url]
         public string UrlImage { get; set; }
