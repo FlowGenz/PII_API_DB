@@ -12,6 +12,7 @@ namespace DTO {
         
         public CustomerDTO MapCustomerToDTO(User customer) {
             CustomerDTO dto = new CustomerDTO();
+            dto.Id = customer.Id;
             dto.FirstName = customer.FirstName;
             dto.LastName = customer.LastName;
             dto.LoyaltyPoints = (int)customer.LoyaltyPoints;

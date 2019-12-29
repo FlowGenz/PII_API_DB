@@ -10,6 +10,9 @@ namespace DTO {
 
         }
 
+        //[Required]
+        public string Id { get; set; }
+
         [Required]
         [MaxLength(50)]
         public string FirstName { get; set; }
@@ -21,7 +24,6 @@ namespace DTO {
         public string Username { get; set; }
         [Required]
         [PasswordPropertyText]
-        [MaxLength(60)]
         public string CustomerPassword { get; set; }
         [Required]
         [EmailAddress]

@@ -4,14 +4,16 @@ using API_DbAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace API_DbAccess.Migrations
 {
     [DbContext(typeof(PII_DBContext))]
-    partial class PII_DBContextModelSnapshot : ModelSnapshot
+    [Migration("20191229012536_MigrationIdentity")]
+    partial class MigrationIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

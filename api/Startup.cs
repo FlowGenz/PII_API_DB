@@ -49,9 +49,9 @@ namespace api
                 });
 
             //Identity security
-            services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<DbContext>();
+                .AddEntityFrameworkStores<PII_DBContext>();
 
             services.AddControllers();
 

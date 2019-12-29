@@ -9,6 +9,7 @@ using API_DbAccess;
 using DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Identity;
 
 namespace api.Controllers
 {
@@ -20,10 +21,12 @@ namespace api.Controllers
 
         private readonly PII_DBContext dbContext;
         private readonly Mapper mapper;
+        private readonly UserManager<User> userManager;
 
-        public PartnerController(PII_DBContext dbContext) : base(dbContext)
+        public PartnerController(PII_DBContext dbContext, UserManager<User> userManager) : base(dbContext)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            this.userManager = userManager;
             mapper = new Mapper();
         }
     
@@ -33,15 +36,18 @@ namespace api.Controllers
         public async Task<ActionResult<IEnumerable<PartnerDTO>>> Get()
         {
 
-            IEnumerable<PartnerDTO> partnerDTO = await dbContext.User
-                //.Where() si user est un partenair
-                .Select(x => mapper.MapPartnerToDTO(x))
-                .ToListAsync();
+            IEnumerable<User> users = await userManager.GetUsersInRoleAsync("PARTENER");
 
-            if (!partnerDTO.Any())
-                return NotFound("No partner found");
+            if (!users.Any())
+                return NotFound("No partener found");
 
-            return Ok(partnerDTO);
+            IEnumerable<PartnerDTO> customerDTOs = users.Select(x => mapper.MapPartnerToDTO(x));
+
+            /*IEnumerable <CustomerDTO> customerDTO = await dbContext.User
+                .Select(x => mapper.MapCustomerToDTO(x))
+                .ToListAsync();*/
+
+            return Ok(customerDTOs);
         }
     }
 }

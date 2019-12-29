@@ -26,11 +26,6 @@ namespace api.Controllers
             mapper = new Mapper();
         }
 
-        /// <summary>
-        /// .!--.!--
-        /// </summary>
-        /// <response code="201">.!--.!--</response>
-        /// <response code="400">.!--.!--</response> 
         [HttpGet]
         [ProducesResponseType(typeof(DressOrderDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -47,12 +42,6 @@ namespace api.Controllers
             return Ok(dressOrderDTO);
         }
 
-        /// <summary>
-        /// .!--.!--
-        /// </summary>
-        /// <param name="dressOrder"></param>
-        /// <response code="200">.!--.!--</response>
-        /// <response code="400">.!--.!--</response> 
         [HttpPost]
         [ProducesResponseType(typeof(String), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
