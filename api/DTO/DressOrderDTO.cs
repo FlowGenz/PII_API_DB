@@ -25,5 +25,7 @@ namespace DTO {
         [Required]
         [MaxLength(50)]
         public string CustomerName { get; set; }
+        [Required]
+        public List<OrderLineDTO> OrderLines {get; set;}
     }
 }

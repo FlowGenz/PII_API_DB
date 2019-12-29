@@ -49,6 +49,10 @@ namespace DTO {
             dto.IsValid = dressOrder.IsValid;
             dto.CustomerId = dressOrder.User.Id;
             dto.CustomerName = dressOrder.User.FirstName + " " + dressOrder.User.LastName;
+            dto.OrderLines = new List<OrderLineDTO>();
+            foreach (OrderLine orderLine in dressOrder.OrderLine) {
+                dto.OrderLines.add(MapOrderLineToDTO(orderLine));
+            }
             return dto;
         }
 
@@ -66,6 +70,21 @@ namespace DTO {
             dto.DressPrice = favorite.Dress.Price;
             dto.UrlImage = favorite.Dress.UrlImage;
             dto.Available = favorite.Dress.Available;
+            return dto;
+        }
+
+        public OrderLineDTO MapOrderLineToDTO(OrderLine orderLine) {
+            OrderLineDTO dto = new OrderLineDTO();
+            dto.Id = orderLine.Id;
+            dto.DateBeginLocation = orderLine.DateBeginLocation;
+            dto.DateEndLocation = orderLine.DateEndLocation;
+            dto.FinalPrice = orderLine.FinalPrice;
+            dto.DressId = orderLine.DressId;
+            dto.DressOrderId = orderLine.DressOrderId;
+            dto.UserId = orderLine.UserId;
+            dto.DressName = orderLine.Dress.DressName;
+            dto.IsDressAvailable = orderLine.Dress.Available;
+            dto.DressUrlImage = orderLine.Dress.UrlImage;
             return dto;
         }
     }
