@@ -27,9 +27,7 @@ namespace DTO {
             DressDTO dto = new DressDTO();
             dto.Id = dress.Id;
             dto.DressName = dress.DressName;
-            // a changer en description
-            //dto.Description = dress.Description;
-            dto.Description = "Description yolo car ca marche pas";
+            dto.Description = dress.Description;
             dto.Price = dress.Price;
             dto.Available = dress.Available;
             dto.DateBeginAvailable = dress.DateBeginAvailable;

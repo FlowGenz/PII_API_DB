@@ -49,9 +49,9 @@ namespace api
                 });
 
             //Identity security
-            /*services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<DbContext>();*/
+                .AddEntityFrameworkStores<DbContext>();
 
             services.AddControllers();
 
@@ -89,6 +89,7 @@ namespace api
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

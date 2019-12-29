@@ -22,7 +22,6 @@ namespace API_DbAccess
         public string DressName { get; set; }
         [Required]
         [MaxLength(200)]
-        //ICI EST LA DESCRIPTION, CE COMMENTAIRE DOIT ETRE SUPPRIME
         public string Description { get; set; }
         [Required]
         [Range(0, 9999.99)]

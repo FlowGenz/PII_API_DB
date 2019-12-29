@@ -93,7 +93,7 @@ namespace api.Controllers
             try
             {
                 dressFound.DressName = dress.DressName;
-                dressFound.Describe = dress.Describe;
+                dressFound.Description = dress.Description;
                 dressFound.Available = dress.Available;
                 dressFound.DateBeginAvailable = dress.DateBeginAvailable;
                 dressFound.DateEndAvailable = dress.DateEndAvailable;

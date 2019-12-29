@@ -28,18 +28,20 @@ namespace api.Controllers
             mapper = new Mapper();
         }
 
+        //A refaire
+
         [HttpGet("{customerID}")]
-        [ProducesResponseType(typeof(DressDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FavoriteDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<DressDTO>>> Get([FromBody] string customerID)
+        public async Task<ActionResult<IEnumerable<FavoriteDTO>>> Get([FromBody] string customerID)
         {
-            /*IEnumerable<DressDTO> favoritesDress = await dbContext.Favorites.Where(x => x.UserId == customerID)
+            IEnumerable<FavoriteDTO> favoritesDress = await dbContext.Favorites.Where(x => x.UserId == customerID)
             .Select(x => mapper.MapFavoriteToDTO(x))
-            .ToListAsync();*/
+            .ToListAsync();
 
-            //if (favoritesDress.Any())
-             //   return Ok(favoritesDress);
+            if (favoritesDress.Any())
+               return Ok(favoritesDress);
 
             return NotFound("No favorites found");
         }

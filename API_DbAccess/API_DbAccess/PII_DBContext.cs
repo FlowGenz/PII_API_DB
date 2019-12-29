@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace API_DbAccess
 {
-    public partial class PII_DBContext : DbContext
+    public partial class PII_DBContext : IdentityDbContext
     {
         public PII_DBContext()
         {
@@ -31,7 +31,7 @@ namespace API_DbAccess
             if (!optionsBuilder.IsConfigured)
             {
                 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                //optionsBuilder.UseSqlServer("Server=localhost,1433; Database=PII_DB_IG; User Id=SA; Password=24Naruto24;");
+                optionsBuilder.UseSqlServer("Server=localhost,1433; Database=PII_DB_IG; User Id=SA; Password=MyPassword;");
             }
             /*if (!optionsBuilder.IsConfigured)
             {
