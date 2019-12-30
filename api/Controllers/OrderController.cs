@@ -37,6 +37,8 @@ namespace api.Controllers
         {
             IEnumerable<DressOrderDTO> dressOrderDTO = await dbContext.DressOrder
                 .Include(u => u.User)
+                .Include(o => o.OrderLine)
+                .Include(o => o.OrderLine).ThenInclude(o => o.Dress)
                 .Select(x => mapper.MapOrderToDTO(x))
                 .ToListAsync();
 
@@ -52,7 +54,11 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<DressOrder>>> Get([FromRoute] string username)
         {
-            User user = await userManager.FindByNameAsync(username);
+            User user = await dbContext.User
+                .Include(u => u.DressOrder)
+                .ThenInclude(o => o.OrderLine)
+                .ThenInclude(o => o.Dress)
+                .FirstOrDefaultAsync(u => u.UserName == username);
             if (User == null) {
                 return BadRequest("Customer does not exist");
             }
@@ -128,7 +134,7 @@ namespace api.Controllers
             HashSet<OrderLine> orderLines = new HashSet<OrderLine>();
             foreach (OrderLineDTO orderLineDTO in dressOrderDTO.OrderLines) {
 
-                OrderLine orderLineFound = await dbContext.OrderLine.FirstOrDefaultAsync(l => l.Id == orderLineDTO.Id);
+                OrderLine orderLineFound = await dbContext.OrderLine.FirstOrDefaultAsync(l => l.DressId == orderLineDTO.DressId && l.DressOrderId == orderLineDTO.DressOrderId);
                 if (orderLineFound == null)
                     orderLineFound = new OrderLine();
 
