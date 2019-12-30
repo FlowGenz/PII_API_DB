@@ -4,11 +4,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using api.Options;
+using System.Reflection;
+using System.IO;
+using System.Net;
+using Microsoft.EntityFrameworkCore;
+using API_DbAccess;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Cors;
+using DTO;
+using Microsoft.AspNetCore.Identity;
  
 namespace api.Controllers
 {
@@ -42,16 +50,16 @@ namespace api.Controllers
                 return BadRequest(ModelState);
 
             User customerFound = await userManager.FindByNameAsync(model.Username);
-            bool isPasswordValid = await _userMgr.CheckPasswordAsync(customerFound, model.Password);
+            bool isPasswordValid = await userManager.CheckPasswordAsync(customerFound, model.Password);
             if (customerFound == null || !isPasswordValid)
                 return Unauthorized();
 
-            var roles = await _userMgr.GetRolesAsync(customerFound);
+            var roles = await userManager.GetRolesAsync(customerFound);
             if(roles == null)
                 return Unauthorized();
 
             IEnumerable<Claim> claims = new[] {
-                new Claim(JwtRegisteredClaimNames.Sub, customerFound.Username),
+                new Claim(JwtRegisteredClaimNames.Sub, customerFound.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
                 new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(), ClaimValueTypes.Integer64),
                 new Claim(ClaimTypes.NameIdentifier, customerFound.UserName),
