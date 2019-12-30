@@ -27,7 +27,7 @@ namespace api.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<CustomerDTO>>> Get()
+        public async Task<ActionResult<string>> Get()
         {
 
             IEnumerable<SentencesOfTheDay> sentences = await dbContext.SentencesOfTheDay.ToListAsync();
@@ -37,7 +37,7 @@ namespace api.Controllers
             int random = new Random().Next(0, sentences.Count());
 
 
-            return Ok(sentences.ElementAt(random));
+            return Ok(sentences.ElementAt(random).Sentence);
         }
     }
 }
