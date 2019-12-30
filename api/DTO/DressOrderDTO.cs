@@ -8,7 +8,7 @@ namespace DTO {
     {
         public DressOrderDTO()
         {
-            
+            OrderLines = new List<OrderLineDTO>();
         }
         public string Id { get; set; }
         public DateTime? BillingDate { get; set; }
@@ -24,6 +24,6 @@ namespace DTO {
         [Required]
         [MaxLength(50)]
         public string CustomerName { get; set; }
-        public List<OrderLineDTO> OrderLines { get; set; }
+        public IList<OrderLineDTO> OrderLines { get; set; }
     }
 }
