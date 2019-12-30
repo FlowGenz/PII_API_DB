@@ -35,34 +35,78 @@ namespace api.Controllers
         [ProducesResponseType(typeof(FavoriteDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<FavoriteDTO>>> Get([FromBody] string username)
+        public async Task<ActionResult<IEnumerable<FavoriteDTO>>> Get([FromRoute] string username)
         {
             User user = await userManager.FindByNameAsync(username);
             if (user == null)
                 return BadRequest("Customer does not exist");
 
-            IEnumerable<FavoriteDTO> favoritesDress = await dbContext.Favorites.Where(x => x.UserId == user.Id)
-            .Select(x => mapper.MapFavoriteToDTO(x))
-            .ToListAsync();
+            IEnumerable<FavoriteDTO> favoritesDress = await dbContext.Favorites
+                .Include(u => u.Dress)
+                .Where(x => x.UserId == user.Id)
+                .Select(x => mapper.MapFavoriteToDTO(x))
+                .ToListAsync();
 
-            if (favoritesDress.Any())
-               return Ok(favoritesDress);
+            if (!favoritesDress.Any())
+                return NotFound("No favorites found");
 
-            return NotFound("No favorites found");
+            /*List<FavoriteDTO> favoriteDTO = new List<FavoriteDTO>();
+            FavoriteDTO dto;
+
+            foreach (Favorites favorites in favoritesDress){
+                dto = new FavoriteDTO();
+                dto.Id = favorites.Id;
+                dto.DressName = favorites.Dress.DressName;
+                dto.DressPrice = favorites.Dress.Price;
+                dto.UrlImage = favorites.Dress.UrlImage;
+                dto.Available = favorites.Dress.Available;
+                favoriteDTO.Add(dto);
+            }*/
+
+
+            return Ok(favoritesDress);
+
+        }
+
+        [HttpGet("{username}/{dressId}")]
+        [ProducesResponseType(typeof(FavoriteDressDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<bool>> Get([FromRoute] string username, [FromRoute] string dressId)
+        {
+            User user = await userManager.FindByNameAsync(username);
+            if (user == null)
+                return BadRequest("Customer does not exist");
+
+            Favorites favoriteFound = dbContext.Favorites.FirstOrDefault(d => d.DressId == dressId && d.UserId == user.Id);
+
+            FavoriteDressDTO favoriteDressDTO = new FavoriteDressDTO();
+            favoriteDressDTO.IsFavorite = favoriteFound != null;
+            if (favoriteDressDTO.IsFavorite)
+            {
+                favoriteDressDTO.FavoriteId = favoriteFound.Id;
+            } else
+            {
+                favoriteDressDTO.FavoriteId = "";
+            } 
+
+
+
+            return Ok(favoriteDressDTO);
         }
 
         [HttpPost]
         [ProducesResponseType(typeof(String), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> Post([FromBody] string dressId, string customerId) {
+        public async Task<ActionResult> Post([FromBody] FavoriteDTO favoriteDTO) {
 
-            Favorites favoriteFound = await dbContext.Favorites.FirstOrDefaultAsync(f => f.UserId == customerId && f.DressId == dressId);
+            Favorites favoriteFound = await dbContext.Favorites.FirstOrDefaultAsync(f => f.UserId == favoriteDTO.CustomerId && f.DressId == favoriteDTO.DressId);
 
             if (favoriteFound != null)
                 return BadRequest("Favorite already exist");
 
-            User customerExist = await dbContext.User.FindAsync(customerId);
-            Dress dressExist = await dbContext.Dress.FindAsync(dressId);
+            User customerExist = await dbContext.User.FindAsync(favoriteDTO.CustomerId);
+            Dress dressExist = await dbContext.Dress.FindAsync(favoriteDTO.DressId);
 
             if (customerExist == null && dressExist == null)
                 return BadRequest("Customer and dress do not exist");
@@ -75,8 +119,8 @@ namespace api.Controllers
 
             Favorites newFavorite = new Favorites();
 
-            newFavorite.DressId = dressId;
-            newFavorite.UserId = customerId;
+            newFavorite.DressId = favoriteDTO.DressId;
+            newFavorite.UserId = favoriteDTO.CustomerId;
 
             dbContext.Favorites.Add(newFavorite);
             dbContext.SaveChanges();

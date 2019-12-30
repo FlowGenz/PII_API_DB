@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using API_DbAccess;
 
 namespace DTO {
@@ -48,10 +49,10 @@ namespace DTO {
             dto.DeliveryDate = dressOrder.DeliveryDate;
             dto.IsValid = dressOrder.IsValid;
             dto.CustomerId = dressOrder.User.Id;
-            dto.CustomerName = dressOrder.User.FirstName + " " + dressOrder.User.LastName;
+            dto.CustomerName = dressOrder.User.FirstName + dressOrder.User.LastName;
             dto.OrderLines = new List<OrderLineDTO>();
             foreach (OrderLine orderLine in dressOrder.OrderLine) {
-                dto.OrderLines.add(MapOrderLineToDTO(orderLine));
+                dto.OrderLines.Add(MapOrderLineToDTO(orderLine));
             }
             return dto;
         }
@@ -81,7 +82,6 @@ namespace DTO {
             dto.FinalPrice = orderLine.FinalPrice;
             dto.DressId = orderLine.DressId;
             dto.DressOrderId = orderLine.DressOrderId;
-            dto.UserId = orderLine.UserId;
             dto.DressName = orderLine.Dress.DressName;
             dto.IsDressAvailable = orderLine.Dress.Available;
             dto.DressUrlImage = orderLine.Dress.UrlImage;

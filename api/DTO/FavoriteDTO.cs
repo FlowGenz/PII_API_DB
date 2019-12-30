@@ -9,7 +9,6 @@ namespace DTO {
         {
         }
 
-        [Required]
         public string Id {get; set;}
         [Required]
         [Url]

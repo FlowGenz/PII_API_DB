@@ -36,6 +36,7 @@ namespace api.Controllers
         public async Task<ActionResult<IEnumerable<DressOrder>>> Get()
         {
             IEnumerable<DressOrderDTO> dressOrderDTO = await dbContext.DressOrder
+                .Include(u => u.User)
                 .Select(x => mapper.MapOrderToDTO(x))
                 .ToListAsync();
 
@@ -69,18 +70,17 @@ namespace api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ObjectResult>> Post([FromBody] DressOrder orderLine)
+        public async Task<ActionResult<string>> Post([FromBody] DressOrderDTO dressOrderDTO)
         {
-
-            User customerFind = await userManager.FindByNameAsync(orderLine.User.UserName);
+            User customerFind = await userManager.FindByNameAsync(dressOrderDTO.CustomerName);
             if (customerFind == null)
                 return BadRequest("Customer does not exist");
 
-            DressOrder dressOrder = customerFind.DressOrder.FirstOrDefault(d => !d.IsValid);
+            /*DressOrder dressOrder = customerFind.DressOrder.FirstOrDefault(d => !d.IsValid);
             if (dressOrder != null)
-                return BadRequest("The customer already have a order in use");
+                return Ok(dressOrder.Id);*/
 
-            dressOrder = new DressOrder();
+            DressOrder dressOrder = new DressOrder();
             dressOrder.BillingAddress = customerFind.UserAddress;
             dressOrder.DeliveryAddress = customerFind.UserAddress;
             dressOrder.User = customerFind;
@@ -105,15 +105,44 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> Put([FromBody] DressOrder orderLine)
+        public async Task<ActionResult> Put([FromBody] DressOrderDTO dressOrderDTO)
         {
-            User customerFind = await userManager.FindByNameAsync(orderLine.User.UserName);
+            User customerFind = await dbContext.User.Include(u => u.DressOrder).FirstOrDefaultAsync(u => u.Id == dressOrderDTO.CustomerId);
             if (customerFind == null)
                 return BadRequest("Customer does not exist");
 
-            DressOrder dressOrder = customerFind.DressOrder.FirstOrDefault(d => !d.IsValid);
+            DressOrder dressOrder = customerFind.DressOrder.FirstOrDefault(d => d.IsValid == false);
             if (dressOrder == null)
-                return BadRequest("The customer already have not a order in use");
+                return BadRequest("The customer do not have a order in use");
+
+            if (dressOrderDTO.IsValid && (dressOrderDTO.DeliveryDate == null || dressOrderDTO.BillingDate == null))
+                return BadRequest("The order is not valid");
+
+            //A mettre dans mapper plus tard
+
+            dressOrder.BillingAddress = dressOrderDTO.BillingAddress;
+            dressOrder.BillingDate = dressOrderDTO.BillingDate;
+            dressOrder.DeliveryAddress = dressOrderDTO.DeliveryAddress;
+            dressOrder.DeliveryDate = dressOrderDTO.DeliveryDate;
+            dressOrder.IsValid = dressOrderDTO.IsValid;
+            HashSet<OrderLine> orderLines = new HashSet<OrderLine>();
+            foreach (OrderLineDTO orderLineDTO in dressOrderDTO.OrderLines) {
+
+                OrderLine orderLineFound = await dbContext.OrderLine.FirstOrDefaultAsync(l => l.Id == orderLineDTO.Id);
+                if (orderLineFound == null)
+                    orderLineFound = new OrderLine();
+
+                orderLineFound.DateBeginLocation = orderLineDTO.DateBeginLocation;
+                orderLineFound.DateEndLocation = orderLineDTO.DateEndLocation;
+                orderLineFound.Dress = await dbContext.Dress.FirstOrDefaultAsync(d => d.Id == orderLineDTO.DressId);
+                orderLineFound.DressOrder = await dbContext.DressOrder.FirstOrDefaultAsync(d => d.Id == orderLineDTO.DressOrderId);
+                orderLineFound.DressOrderId = orderLineDTO.DressOrderId;
+                orderLineFound.FinalPrice = orderLineDTO.FinalPrice;
+
+                orderLines.Add(orderLineFound);
+            }
+
+            dressOrder.OrderLine = orderLines;
 
             try
             {

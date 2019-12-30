@@ -1,28 +1,30 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+
 namespace DTO {
     public class OrderLineDTO
     {
         public OrderLineDTO()
         {
         }
-        [Required]
         public string Id { get; set; }
-        [Required]
+        //[Required]
         [DataType(DataType.Date)]
-        public DateTime DateBeginLocation { get; set; }
-        [Required]
+        public DateTime? DateBeginLocation { get; set; }
+        //[Required]
         [DataType(DataType.Date)]
-        public DateTime DateEndLocation { get; set; }
+        public DateTime? DateEndLocation { get; set; }
         [Required]
         [Range(0, 9999.99)]
         public decimal FinalPrice { get; set; }
         [Required]
-        public string DressName {get; set;}
-        [required]
-        public bool IsDressAvailable {get; set;}
+        public string DressName { get; set; }
         [Required]
-        public string DressUrlImage {get; set;}
+        public bool IsDressAvailable { get; set; }
         [Required]
-        public string UserId { get; set; }
+        public string DressUrlImage { get; set; }
         [Required]
         public string DressOrderId { get; set; }
         [Required]

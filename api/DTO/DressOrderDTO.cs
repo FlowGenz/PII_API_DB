@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -10,9 +11,7 @@ namespace DTO {
             
         }
         public string Id { get; set; }
-        [Required]
         public DateTime? BillingDate { get; set; }
-        [Required]
         public DateTime? DeliveryDate { get; set; }
         [Required]
         public string BillingAddress { get; set; }
@@ -25,7 +24,6 @@ namespace DTO {
         [Required]
         [MaxLength(50)]
         public string CustomerName { get; set; }
-        [Required]
-        public List<OrderLineDTO> OrderLines {get; set;}
+        public List<OrderLineDTO> OrderLines { get; set; }
     }
 }
