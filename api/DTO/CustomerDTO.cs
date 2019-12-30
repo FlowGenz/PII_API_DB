@@ -21,7 +21,7 @@ namespace DTO {
         public string Username { get; set; }
         [Required]
         [PasswordPropertyText]
-        [RegularExpression("^(?=.*[0 - 9])(?=.*[a - z])(?=.*[A - Z])(?=.*[@#$%^&+=_-]).{8,20}$")]
+        //[RegularExpression("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$^+=!*()@%&]).{8,20}$")]
         public string CustomerPassword { get; set; }
         [Required]
         [EmailAddress]
