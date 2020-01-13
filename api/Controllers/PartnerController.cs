@@ -31,7 +31,7 @@ namespace api.Controllers
         }
     
         [HttpGet]
-        [ProducesResponseType(typeof(PartnerDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<PartnerDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<PartnerDTO>>> Get()
         {

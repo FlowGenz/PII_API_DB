@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+//Mettre les tailles minimuns un peu partout
+
 namespace API_DbAccess
 {
     public partial class Dress
@@ -17,8 +19,8 @@ namespace API_DbAccess
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
         [Required]
-        [MaxLength(50)]
         [MinLength(2)]
+        [MaxLength(50)]
         public string DressName { get; set; }
         [Required]
         [MaxLength(200)]

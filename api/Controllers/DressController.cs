@@ -32,7 +32,7 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(DressDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<DressDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<DressDTO>>> Get()

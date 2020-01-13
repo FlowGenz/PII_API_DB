@@ -30,7 +30,7 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(DressOrderDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<DressOrderDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<DressOrder>>> Get()
@@ -59,6 +59,7 @@ namespace api.Controllers
                 .ThenInclude(o => o.OrderLine)
                 .ThenInclude(o => o.Dress)
                 .FirstOrDefaultAsync(u => u.UserName == username);
+
             if (User == null) {
                 return BadRequest("Customer does not exist");
             }
