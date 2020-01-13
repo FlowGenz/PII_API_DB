@@ -43,10 +43,6 @@ namespace api.Controllers
 
             IEnumerable<PartnerDTO> customerDTOs = users.Select(x => mapper.MapPartnerToDTO(x));
 
-            /*IEnumerable <CustomerDTO> customerDTO = await dbContext.User
-                .Select(x => mapper.MapCustomerToDTO(x))
-                .ToListAsync();*/
-
             return Ok(customerDTOs);
         }
     }

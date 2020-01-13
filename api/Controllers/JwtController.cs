@@ -38,13 +38,9 @@ namespace api.Controllers
             _jwtOptions = jwtOptions.Value;
         }
 
-        [HttpGet]
-        public string Get()
-        {
-            return "Jwt Get";
-        }
-
         [HttpPost]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Login([FromBody] LoginDTO model) {
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -52,11 +48,11 @@ namespace api.Controllers
             User customerFound = await userManager.FindByNameAsync(model.Username);
             bool isPasswordValid = await userManager.CheckPasswordAsync(customerFound, model.Password);
             if (customerFound == null || !isPasswordValid)
-                return Unauthorized();
+                return BadRequest("Username or password invalid");
 
             var roles = await userManager.GetRolesAsync(customerFound);
-            if(roles == null)
-                return Unauthorized();
+            if(!roles.Contains("ADMIN"))
+                return Unauthorized("You do not have the authorization to access this website");
 
             IEnumerable<Claim> claims = new[] {
                 new Claim(JwtRegisteredClaimNames.Sub, customerFound.UserName),
