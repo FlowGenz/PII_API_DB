@@ -39,8 +39,9 @@ namespace api.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(JwtDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult> Login([FromBody] LoginDTO model) {
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
