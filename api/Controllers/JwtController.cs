@@ -78,10 +78,15 @@ namespace api.Controllers
 
             string encodedJwt = new JwtSecurityTokenHandler().WriteToken(token);
 
-            var response = new {
+            JwtDTO response = new JwtDTO(
+                encodedJwt,
+                (int)_jwtOptions.ValidFor.TotalSeconds
+            );
+
+            /*var response = new {
                 access_token = encodedJwt,
                 expires_in = (int)_jwtOptions.ValidFor.TotalSeconds
-            };
+            };*/
 
             return Ok(response);
         }
