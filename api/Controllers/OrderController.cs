@@ -166,12 +166,12 @@ namespace api.Controllers
             return Ok("Order updated with success");
         }
 
-        [HttpDelete]
+        [HttpDelete("{dressOrderId}")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ObjectResult>> Delete([FromBody] string dressOrder) {
+        public async Task<ActionResult<ObjectResult>> Delete([FromRoute] string dressOrderId) {
 
-            DressOrder dressOrderFound = await dbContext.DressOrder.FirstOrDefaultAsync(d => d.Id == dressOrder);
+            DressOrder dressOrderFound = await dbContext.DressOrder.FirstOrDefaultAsync(d => d.Id == dressOrderId);
 
             if (dressOrderFound == null)
                 return BadRequest("order does not exist");
