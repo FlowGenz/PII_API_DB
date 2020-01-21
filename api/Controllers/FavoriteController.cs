@@ -33,8 +33,8 @@ namespace api.Controllers
 
         [HttpGet("{username}")]
         [ProducesResponseType(typeof(FavoriteDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<FavoriteDTO>>> Get([FromRoute] string username)
         {
             User user = await userManager.FindByNameAsync(username);
@@ -51,13 +51,12 @@ namespace api.Controllers
                 return NotFound("No favorites found");
 
             return Ok(favoritesDress);
-
         }
 
         [HttpGet("{username}/{dressId}")]
         [ProducesResponseType(typeof(FavoriteDressDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<bool>> Get([FromRoute] string username, [FromRoute] string dressId)
         {
             User user = await userManager.FindByNameAsync(username);
@@ -67,17 +66,17 @@ namespace api.Controllers
             Favorites favoriteFound = dbContext.Favorites.FirstOrDefault(d => d.DressId == dressId && d.UserId == user.Id);
 
             FavoriteDressDTO favoriteDressDTO = new FavoriteDressDTO();
-            favoriteDressDTO.IsFavorite = favoriteFound != null;
-            if (favoriteDressDTO.IsFavorite)
+
+            if (favoriteFound != null)
             {
                 favoriteDressDTO.FavoriteId = favoriteFound.Id;
+                favoriteDressDTO.IsFavorite = true;
             } 
             else
             {
                 favoriteDressDTO.FavoriteId = null;
+                favoriteDressDTO.IsFavorite = false;
             } 
-
-
 
             return Ok(favoriteDressDTO);
         }
@@ -104,11 +103,7 @@ namespace api.Controllers
             if (dressExist == null)
                 return BadRequest("Dress does not exist");
 
-            //Déclaration nouv Favorite est propre ici ?
-
-            Favorites newFavorite = new Favorites();
-            newFavorite.DressId = favoriteDTO.DressId;
-            newFavorite.UserId = favoriteDTO.CustomerId;
+            Favorites newFavorite =  mapper.MapFavoriteDtoToFavoriteModel(favoriteDTO, customerExist, dressExist);
 
             dbContext.Favorites.Add(newFavorite);
             dbContext.SaveChanges();

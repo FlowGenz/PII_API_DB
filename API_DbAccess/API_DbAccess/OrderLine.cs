@@ -24,6 +24,8 @@ namespace API_DbAccess
         public string DressOrderId { get; set; }
         [Required]
         public string DressId { get; set; }
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
 
         public virtual Dress Dress { get; set; }
         public virtual DressOrder DressOrder { get; set; }

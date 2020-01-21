@@ -33,16 +33,18 @@ namespace API_DbAccess
                 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
                 optionsBuilder.UseSqlServer("Server=localhost,1433; Database=PII_DB_IG; User Id=SA; Password=MyPassword;");
             }
-            /*if (!optionsBuilder.IsConfigured)
-            {
-                IConfigurationRoot configuration = new ConfigurationBuilder()
-                    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                    .AddJsonFile("appsettings.json")
-                    .Build();
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("DressDatabaseAzure"));
-            }*/
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<Dress>().Property(p => p.RowVersion).IsConcurrencyToken();
+            builder.Entity<User>().Property(p => p.RowVersion).IsConcurrencyToken();
+            builder.Entity<DressOrder>().Property(p => p.RowVersion).IsConcurrencyToken();
+            base.OnModelCreating(builder);
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+
     }
 }

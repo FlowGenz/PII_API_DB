@@ -55,19 +55,16 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<DressDTO>> Get([FromRoute] string id)
         {
-
-            //A changer  =>  regarder le pourquoi du commentaire (j'aurais pas du écrit aussi court)
-
-
-            IEnumerable<DressDTO> dressesDTO = await dbContext.Dress
+            Dress dress = await dbContext.Dress
                 .Include(u => u.User)
-                .Select(x => mapper.MapDressToDTO(x))
-                .ToListAsync();
+                .FirstOrDefaultAsync(u => u.Id == id);
 
-            if (!dressesDTO.Any())
+            if (dress == null)
                 return NotFound("No dress found");
 
-            return Ok(dressesDTO.First());
+            DressDTO dressDTO = mapper.MapDressToDTO(dress);
+
+            return Ok(dressDTO);
         }
 
         [HttpPost]
@@ -76,7 +73,6 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
 
         public async Task<ActionResult> Post([FromBody] DressDTO dressDTO) {
-
 
             if (dressDTO.DateEndAvailable != null && DateTime.Compare((DateTime)dressDTO.DateEndAvailable, dressDTO.DateBeginAvailable) < 0)
                 return BadRequest("The date end available can not be early then the date begin available");
@@ -92,17 +88,8 @@ namespace api.Controllers
 
             Dress newDress = mapper.MapDressDtoToDress(dressDTO, patnerFound);
 
-            try
-            {
-                await dbContext.Dress.AddAsync(newDress);
-                await dbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                var entry = ex.Entries.Single();
-                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
-                return Conflict("Conflict detected, transation cancel");
-            }
+            await dbContext.Dress.AddAsync(newDress);
+            await dbContext.SaveChangesAsync();
 
             return Ok("Dress added with success");
         }
@@ -135,6 +122,7 @@ namespace api.Controllers
             try
             {
                 dbContext.Dress.Update(dressUpdate);
+                //dbContext.Entry(dressUpdate).Property("RowVersion").OriginalValue;
                 dbContext.SaveChanges();
             }
             catch (DbUpdateConcurrencyException ex)
@@ -157,19 +145,8 @@ namespace api.Controllers
             if (dressFound == null)
                 return NotFound("Dress does not exist");
 
-            // Regarder si mettre une gestion de concurence est utile !!!
-
-            try
-            {
-                dbContext.Dress.Remove(dressFound);
-                dbContext.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                var entry = ex.Entries.Single();
-                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
-                return Conflict("Conflict detected, transation cancel");
-            }
+            dbContext.Dress.Remove(dressFound);
+            dbContext.SaveChanges();
 
             return Ok("Dress deleted with success");
         }

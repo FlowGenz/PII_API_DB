@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataAnnotationsExtensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -26,7 +27,8 @@ namespace API_DbAccess
         [MaxLength(200)]
         public string Description { get; set; }
         [Required]
-        [Range(0, 9999.99)]
+        [Min(0)]
+        [Max(10000)]
         public decimal Price { get; set; }
         [Required]
         [MaxLength(5)]
@@ -39,10 +41,12 @@ namespace API_DbAccess
         [DataType(DataType.Date)]
         public DateTime? DateEndAvailable { get; set; }
         [Required]
-        [Url]
+        [System.ComponentModel.DataAnnotations.Url]
         public string UrlImage { get; set; }
         [Required]
         public string PartnerId { get; set; }
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
 
         public virtual User User { get; set; }
         public virtual ICollection<Favorites> Favorites { get; set; }

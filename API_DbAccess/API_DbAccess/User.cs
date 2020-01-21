@@ -26,6 +26,8 @@ namespace API_DbAccess
         public string UserAddress { get; set; }
         [RegularExpression("[0-9]{1,4}")]
         public int? LoyaltyPoints { get; set; }
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
 
         public virtual ICollection<Dress> Dress { get; set; }
         public virtual ICollection<DressOrder> DressOrder { get; set; }

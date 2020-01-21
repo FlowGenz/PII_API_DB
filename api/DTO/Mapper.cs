@@ -78,7 +78,6 @@ namespace DTO {
             dto.IsValid = dressOrder.IsValid;
             dto.CustomerId = dressOrder.User.Id;
             dto.CustomerName = dressOrder.User.FirstName + dressOrder.User.LastName;
-            dto.OrderLines = new List<OrderLineDTO>();
             foreach (OrderLine orderLine in dressOrder.OrderLine) {
                 dto.OrderLines.Add(MapOrderLineToDTO(orderLine));
             }
@@ -93,7 +92,6 @@ namespace DTO {
             newDressOrder.DeliveryAddress = dressOrderDTO.DeliveryAddress;
             newDressOrder.DeliveryDate = dressOrderDTO.DeliveryDate;
             newDressOrder.IsValid = dressOrderDTO.IsValid;
-            newDressOrder.OrderLine = new HashSet<OrderLine>();
             return newDressOrder;
         }
 
@@ -123,6 +121,16 @@ namespace DTO {
             dto.UrlImage = favorite.Dress.UrlImage;
             dto.Available = favorite.Dress.Available;
             return dto;
+        }
+
+        public Favorites MapFavoriteDtoToFavoriteModel(FavoriteDTO favoriteDTO, User customer, Dress dress) {
+            Favorites newFavorite = new Favorites();
+            newFavorite.DressId = favoriteDTO.DressId;
+            newFavorite.UserId = favoriteDTO.CustomerId;
+            newFavorite.User = customer;
+            newFavorite.Dress = dress;
+            dress.Favorites.Add(newFavorite);
+            return newFavorite;
         }
 
         public OrderLineDTO MapOrderLineToDTO(OrderLine orderLine) {

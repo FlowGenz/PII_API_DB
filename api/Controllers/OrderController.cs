@@ -70,7 +70,6 @@ namespace api.Controllers
                 return NotFound("No order found");
 
             DressOrderDTO dressOrderDTO = mapper.MapDressOrderToDressDTO(dressOrder);
-
             return Ok(dressOrderDTO);
         }
 
@@ -79,40 +78,20 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<string>> Post([FromBody] DressOrderDTO dressOrderDTO)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
 
             if (dressOrderDTO.IsValid != false) {
                 return BadRequest("A new order can not have the attribute isValid set at other value then false");
             }
-         
             
             User customerFind = await userManager.FindByNameAsync(dressOrderDTO.CustomerName);
             if (customerFind == null)
                 return BadRequest("Customer does not exist");
 
-            /*DressOrder dressOrder = customerFind.DressOrder.FirstOrDefault(d => !d.IsValid);
-            if (dressOrder != null)
-                return Ok(dressOrder.Id);*/
-
-            DressOrder dressOrder = new DressOrder();
-            dressOrder.BillingAddress = customerFind.UserAddress;
-            dressOrder.DeliveryAddress = customerFind.UserAddress;
-            dressOrder.User = customerFind;
+            DressOrder dressOrder = mapper.MapDressOrderDtoToDressOrderModel(dressOrderDTO);
             customerFind.DressOrder.Add(dressOrder);
 
-            try
-            {
-                await dbContext.DressOrder.AddAsync(dressOrder);
-                await dbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                var entry = ex.Entries.Single();
-                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
-                return Conflict("Conflict detected, transation cancel");
-            }
-
+            await dbContext.DressOrder.AddAsync(dressOrder);
+            await dbContext.SaveChangesAsync();
             return Created("Dress order added with success", dressOrder.Id);
         }
 
@@ -122,8 +101,6 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         public async Task<ActionResult> Put([FromBody] DressOrderDTO dressOrderDTO)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
 
             if (dressOrderDTO.OrderLines.Count < 1)
                 return BadRequest("An order can not be update without orderLines");
@@ -139,8 +116,6 @@ namespace api.Controllers
             if (dressOrderDTO.IsValid && (dressOrderDTO.DeliveryDate == null || dressOrderDTO.BillingDate == null))
                 return BadRequest("The order is not valid");
 
-            //A mettre dans mapper plus tard
-
             dressOrder = mapper.MapDressOrderDtoToDressOrderModel(dressOrderDTO);
 
             foreach (OrderLineDTO orderLineDTO in dressOrderDTO.OrderLines) {
@@ -155,6 +130,7 @@ namespace api.Controllers
             try
             {
                 dbContext.DressOrder.Update(dressOrder);
+                //dbContext.Entry(dressOrder).Property("RowVersion").OriginalValue;
                 dbContext.SaveChanges();
             }
             catch (DbUpdateConcurrencyException ex)
@@ -177,20 +153,10 @@ namespace api.Controllers
             if (dressOrderFound == null)
                 return BadRequest("order does not exist");
 
-            try
-            {
-                dbContext.DressOrder.Remove(dressOrderFound);
-                await dbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                var entry = ex.Entries.Single();
-                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
-                return Conflict("Conflict detected, transation cancel");
-            }
+            dbContext.DressOrder.Remove(dressOrderFound);
+            await dbContext.SaveChangesAsync();
 
             return Ok("Dress order added with success");
-
         }
     }
 }

@@ -55,8 +55,6 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<CustomerDTO>>> Get([FromRoute] string username)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
 
             User user = await userManager.FindByNameAsync(username);
 
@@ -70,14 +68,10 @@ namespace api.Controllers
 
         [HttpPost]
         [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Post([FromBody] CustomerDTO customerDTO)
         {
-            //Regarder si le if est nécéssaire a tout les post et put 
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
 
             User customerFound = await userManager.FindByNameAsync(customerDTO.Username);
 
@@ -99,20 +93,14 @@ namespace api.Controllers
 
             User newUser = mapper.MapCustomerDToToCustomerModel(customerDTO);
 
-            IdentityResult result = await userManager.CreateAsync(newUser, customerDTO.CustomerPassword);
-
-            //regarder pour mieux 
-            if (!result.Succeeded)
-                return BadRequest(result.Errors.First().Description);
+            await userManager.CreateAsync(newUser, customerDTO.CustomerPassword);
 
             // regarder de nouveau pour ces deux lignes de code
 
             //await roleManager.CreateAsync(new IdentityRole("CUSTOMER"));
-            result = await userManager.AddToRoleAsync(newUser, "CUSTOMER");
+            await userManager.AddToRoleAsync(newUser, "CUSTOMER");
 
-            if (!result.Succeeded)
-                return BadRequest(result.Errors.First().Description);
-
+            
             return Created("Customer created with success", newUser.Id);
         }
 
@@ -122,9 +110,6 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         public async Task<ActionResult> Put([FromBody] CustomerDTO customerDTO)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             User customerFound = await userManager.FindByNameAsync(customerDTO.Username);
 
             if (customerFound == null)
@@ -143,11 +128,19 @@ namespace api.Controllers
 
             customerFound = mapper.MapCustomerDToToCustomerModel(customerDTO);
 
-            IdentityResult result = await userManager.UpdateAsync(customerFound);
+            try
+            {
+                await userManager.UpdateAsync(customerFound);
+                //dbContext.Entry(customerFound).Property("RowVersion").OriginalValue;
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                var entry = ex.Entries.Single();
+                entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+                return Conflict("Conflict detected, transation cancel");
+            }
 
-            if(result.Succeeded)
-                return Ok("Customer updated with success");
-            return BadRequest("Customer update failed");
+            return Ok("Customer updated with success");
         }
 
         [HttpDelete("{customerId}")]
@@ -158,29 +151,11 @@ namespace api.Controllers
         {
             User customerFound = await userManager.FindByIdAsync(customerId);
          
-            
             if (customerFound == null)
                 return NotFound("Customer does not exist");
 
-            //verification nécéssaire ? Ca doit être fait avec JwT
-            bool isCustomer = await userManager.IsInRoleAsync(customerFound, "CUSTOMER");
-
-            if (!isCustomer)
-                return Unauthorized("Action unauthorized"); 
-
-            IdentityResult result = await userManager.DeleteAsync(customerFound);
-
-            if (result.Succeeded)
-                return Ok("Customer deleted with success");
-            return BadRequest("Customer delete failed");
-
-        }
-
-        public String verificationCustomer(CustomerDTO customerDTO) {
-
-
-
-            return null;
+            await userManager.DeleteAsync(customerFound);
+            return Ok("Customer deleted with success");
         }
     }
 }

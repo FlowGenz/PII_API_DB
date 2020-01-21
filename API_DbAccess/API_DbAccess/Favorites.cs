@@ -18,5 +18,6 @@ namespace API_DbAccess
 
         public virtual Dress Dress { get; set; }
         public virtual User User { get; set; }
+
     }
 }
