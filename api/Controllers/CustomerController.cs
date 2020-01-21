@@ -55,6 +55,8 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<CustomerDTO>>> Get([FromRoute] string username)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             User user = await userManager.FindByNameAsync(username);
 
@@ -72,39 +74,40 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         public async Task<ActionResult> Post([FromBody] CustomerDTO customerDTO)
         {
+            //Regarder si le if est nécéssaire a tout les post et put 
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             User customerFound = await userManager.FindByNameAsync(customerDTO.Username);
 
             if (customerFound != null)
                 return BadRequest("Username already exist");
-
-            User newUser = new User();
-
-            newUser.UserName = customerDTO.Username;
-            newUser.UserAddress = customerDTO.CustomerAddress;
-            newUser.LoyaltyPoints = customerDTO.LoyaltyPoints;
-            newUser.LastName = customerDTO.LastName;
-            newUser.FirstName = customerDTO.FirstName;
-            newUser.Email = customerDTO.Email;
-            newUser.PhoneNumber = customerDTO.PhoneNumber;
-
             
             
             User isEmailAvailib = await userManager.FindByEmailAsync(customerDTO.Email);
             if(isEmailAvailib != null)
                 return BadRequest("email is already in use");
 
-            if (customerDTO.PhoneNumber != null && customerDTO.PhoneNumber.Trim() != "") {
+            customerDTO.PhoneNumber = customerDTO.PhoneNumber.Trim();
+
+            if (customerDTO.PhoneNumber != null) {
                 User isPhoneAvailib = dbContext.User.Where(u => u.PhoneNumber == customerDTO.PhoneNumber).FirstOrDefault();
                 if (isPhoneAvailib != null)
                     return BadRequest("phone number is already in use");
             }
 
+            User newUser = mapper.MapCustomerDToToCustomerModel(customerDTO);
+
             IdentityResult result = await userManager.CreateAsync(newUser, customerDTO.CustomerPassword);
 
+            //regarder pour mieux 
             if (!result.Succeeded)
                 return BadRequest(result.Errors.First().Description);
-            
-            await roleManager.CreateAsync(new IdentityRole("CUSTOMER"));
+
+            // regarder de nouveau pour ces deux lignes de code
+
+            //await roleManager.CreateAsync(new IdentityRole("CUSTOMER"));
             result = await userManager.AddToRoleAsync(newUser, "CUSTOMER");
 
             if (!result.Succeeded)
@@ -119,6 +122,8 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         public async Task<ActionResult> Put([FromBody] CustomerDTO customerDTO)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             User customerFound = await userManager.FindByNameAsync(customerDTO.Username);
 
@@ -129,20 +134,20 @@ namespace api.Controllers
             if (isEmailAvailib != null)
                 return BadRequest("email is already in use");
 
-            customerFound.FirstName = customerDTO.FirstName;
-            customerFound.LastName = customerDTO.LastName;
-            customerFound.PasswordHash = customerDTO.CustomerPassword;
-            customerFound.Email = customerDTO.Email;
-            customerFound.UserName = customerDTO.Username;
-            customerFound.UserAddress = customerDTO.CustomerAddress;
-            customerFound.LoyaltyPoints = customerDTO.LoyaltyPoints;
-            customerFound.PhoneNumber = customerDTO.PhoneNumber;
+            if (customerDTO.PhoneNumber != null && customerDTO.PhoneNumber != customerFound.PhoneNumber)
+            {
+                User isPhoneAvailib = dbContext.User.Where(u => u.PhoneNumber == customerDTO.PhoneNumber).FirstOrDefault();
+                if (isPhoneAvailib != null)
+                    return BadRequest("phone number is already in use");
+            }
+
+            customerFound = mapper.MapCustomerDToToCustomerModel(customerDTO);
 
             IdentityResult result = await userManager.UpdateAsync(customerFound);
 
             if(result.Succeeded)
                 return Ok("Customer updated with success");
-            return BadRequest();
+            return BadRequest("Customer update failed");
         }
 
         [HttpDelete("{customerId}")]
@@ -157,7 +162,7 @@ namespace api.Controllers
             if (customerFound == null)
                 return NotFound("Customer does not exist");
 
-            //verification néccaisaire ?
+            //verification nécéssaire ? Ca doit être fait avec JwT
             bool isCustomer = await userManager.IsInRoleAsync(customerFound, "CUSTOMER");
 
             if (!isCustomer)
@@ -167,8 +172,15 @@ namespace api.Controllers
 
             if (result.Succeeded)
                 return Ok("Customer deleted with success");
-            return BadRequest();
+            return BadRequest("Customer delete failed");
 
+        }
+
+        public String verificationCustomer(CustomerDTO customerDTO) {
+
+
+
+            return null;
         }
     }
 }

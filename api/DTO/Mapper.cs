@@ -25,6 +25,18 @@ namespace DTO {
             return dto;
         }
 
+        public User MapCustomerDToToCustomerModel(CustomerDTO customerDTO) {
+            User newUser = new User();
+            newUser.UserName = customerDTO.Username;
+            newUser.UserAddress = customerDTO.CustomerAddress;
+            newUser.LoyaltyPoints = customerDTO.LoyaltyPoints;
+            newUser.LastName = customerDTO.LastName;
+            newUser.FirstName = customerDTO.FirstName;
+            newUser.Email = customerDTO.Email;
+            newUser.PhoneNumber = customerDTO.PhoneNumber;
+            return newUser;
+        }
+
         public DressDTO MapDressToDTO(Dress dress) {
             DressDTO dto = new DressDTO();
             dto.Id = dress.Id;
@@ -36,12 +48,27 @@ namespace DTO {
             dto.DateBeginAvailable = dress.DateBeginAvailable;
             dto.DateEndAvailable = dress.DateEndAvailable;
             dto.UrlImage = dress.UrlImage;
-            dto.PartnerId = dress.UserId;
+            dto.PartnerId = dress.User.Id;
             dto.PartnerName = dress.User.UserName;
             return dto;
         }
 
-        public DressOrderDTO MapOrderToDTO(DressOrder dressOrder) {
+        public Dress MapDressDtoToDress(DressDTO dressDTO, User partner) {
+            Dress newDress = new Dress();
+            newDress.DressName = dressDTO.DressName;
+            newDress.Description = dressDTO.Description;
+            newDress.Price = dressDTO.Price;
+            newDress.Size = dressDTO.Size;
+            newDress.Available = dressDTO.Available;
+            newDress.DateBeginAvailable = dressDTO.DateBeginAvailable;
+            newDress.DateEndAvailable = dressDTO.DateEndAvailable;
+            newDress.UrlImage = dressDTO.UrlImage;
+            newDress.User = partner;
+            partner.Dress.Add(newDress);
+            return newDress;
+        }
+
+        public DressOrderDTO MapDressOrderToDressDTO(DressOrder dressOrder) {
             DressOrderDTO dto = new DressOrderDTO();
             dto.Id = dressOrder.Id;
             dto.BillingAddress = dressOrder.BillingAddress;
@@ -56,6 +83,29 @@ namespace DTO {
                 dto.OrderLines.Add(MapOrderLineToDTO(orderLine));
             }
             return dto;
+        }
+
+        public DressOrder MapDressOrderDtoToDressOrderModel(DressOrderDTO dressOrderDTO)
+        {
+            DressOrder newDressOrder = new DressOrder();
+            newDressOrder.BillingAddress = dressOrderDTO.BillingAddress;
+            newDressOrder.BillingDate = dressOrderDTO.BillingDate;
+            newDressOrder.DeliveryAddress = dressOrderDTO.DeliveryAddress;
+            newDressOrder.DeliveryDate = dressOrderDTO.DeliveryDate;
+            newDressOrder.IsValid = dressOrderDTO.IsValid;
+            newDressOrder.OrderLine = new HashSet<OrderLine>();
+            return newDressOrder;
+        }
+
+        public OrderLine MapOrderLineDtoToOrderLineModel(OrderLineDTO orderLine, Dress dress, DressOrder dressOrder) {
+            OrderLine newOrderLine = new OrderLine();
+            newOrderLine.DateBeginLocation = orderLine.DateBeginLocation;
+            newOrderLine.DateEndLocation = orderLine.DateEndLocation;
+            newOrderLine.Dress = dress;
+            newOrderLine.DressOrder = dressOrder;
+            newOrderLine.DressOrderId = dressOrder.Id;
+            newOrderLine.FinalPrice = orderLine.FinalPrice;
+            return newOrderLine;
         }
 
         public PartnerDTO MapPartnerToDTO(User partner) {

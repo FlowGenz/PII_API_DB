@@ -56,7 +56,7 @@ namespace api.Controllers
         public async Task<ActionResult<DressDTO>> Get([FromRoute] string id)
         {
 
-            //A changer
+            //A changer  =>  regarder le pourquoi du commentaire (j'aurais pas du écrit aussi court)
 
 
             IEnumerable<DressDTO> dressesDTO = await dbContext.Dress
@@ -73,27 +73,28 @@ namespace api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> Post([FromBody] Dress dress) {
+        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
 
-            
-            if (dress.DateEndAvailable != null && DateTime.Compare((DateTime)dress.DateEndAvailable, dress.DateBeginAvailable) < 0)
+        public async Task<ActionResult> Post([FromBody] DressDTO dressDTO) {
+
+
+            if (dressDTO.DateEndAvailable != null && DateTime.Compare((DateTime)dressDTO.DateEndAvailable, dressDTO.DateBeginAvailable) < 0)
                 return BadRequest("The date end available can not be early then the date begin available");
 
-            User patnerFound = await userManager.FindByIdAsync(dress.UserId);
+            User patnerFound = await userManager.FindByIdAsync(dressDTO.PartnerId);
             if (patnerFound == null)
                 return BadRequest("Partner does not exist");
 
-            Dress dressFound = await dbContext.Dress.FirstOrDefaultAsync(d => d.DressName == dress.DressName);
+            Dress dressFound = await dbContext.Dress.FirstOrDefaultAsync(d => d.DressName == dressDTO.DressName);
 
             if (dressFound != null)
                 return BadRequest("dress already exist");
 
-            dress.User = patnerFound;
-            patnerFound.Dress.Add(dress);
+            Dress newDress = mapper.MapDressDtoToDress(dressDTO, patnerFound);
 
             try
             {
-                await dbContext.Dress.AddAsync(dress);
+                await dbContext.Dress.AddAsync(newDress);
                 await dbContext.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException ex)
@@ -110,30 +111,30 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> Put([FromBody] Dress dress)
+        public async Task<ActionResult> Put([FromBody] DressDTO dressDTO)
         {
-            Dress dressFound = await dbContext.Dress.FindAsync(dress.Id);
+            Dress dressFound = await dbContext.Dress.FindAsync(dressDTO.Id);
 
             if (dressFound == null)
                 return NotFound("Dress does not exist");
 
-            if (dressFound.DressName != dress.DressName){
+            if (dressFound.DressName != dressDTO.DressName){
 
-                Dress dressNameFound = await dbContext.Dress.FirstOrDefaultAsync(d => d.DressName == dress.DressName);
+                Dress dressNameFound = await dbContext.Dress.FirstOrDefaultAsync(d => d.DressName == dressDTO.DressName);
 
                 if (dressNameFound != null)
                     return BadRequest("dress name already exist");
             }
 
+            User patnerFound = await userManager.FindByIdAsync(dressDTO.PartnerId);
+            if (patnerFound == null)
+                return BadRequest("Partner does not exist");
+
+            Dress dressUpdate = mapper.MapDressDtoToDress(dressDTO, patnerFound);
+
             try
             {
-                dressFound.DressName = dress.DressName;
-                dressFound.Description = dress.Description;
-                dressFound.Available = dress.Available;
-                dressFound.DateBeginAvailable = dress.DateBeginAvailable;
-                dressFound.DateEndAvailable = dress.DateEndAvailable;
-                dressFound.Price = dress.Price;
-                dbContext.Dress.Update(dressFound);
+                dbContext.Dress.Update(dressUpdate);
                 dbContext.SaveChanges();
             }
             catch (DbUpdateConcurrencyException ex)
@@ -155,6 +156,8 @@ namespace api.Controllers
 
             if (dressFound == null)
                 return NotFound("Dress does not exist");
+
+            // Regarder si mettre une gestion de concurence est utile !!!
 
             try
             {

@@ -42,7 +42,7 @@ namespace API_DbAccess
         [Url]
         public string UrlImage { get; set; }
         [Required]
-        public string UserId { get; set; }
+        public string PartnerId { get; set; }
 
         public virtual User User { get; set; }
         public virtual ICollection<Favorites> Favorites { get; set; }
