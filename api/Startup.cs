@@ -55,7 +55,7 @@ namespace api
 
             services.AddControllers();
 
-            services.AddDbContext<PII_DBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DressDatabase")));
+            services.AddDbContext<PII_DBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DressDatabaseAzure")));
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
             {

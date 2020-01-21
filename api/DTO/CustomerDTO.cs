@@ -10,7 +10,7 @@ namespace DTO {
 
         }
 
-        public string id { get; set; }
+        public string Id { get; set; }
 
         [Required]
         [MaxLength(50)]
