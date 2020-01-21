@@ -39,7 +39,7 @@ namespace api.Controllers
                 .Include(u => u.User)
                 .Include(o => o.OrderLine)
                 .Include(o => o.OrderLine).ThenInclude(o => o.Dress)
-                .Select(x => mapper.MapOrderToDTO(x))
+                .Select(x => mapper.MapDressOrderToDressDTO(x))
                 .ToListAsync();
 
             if (!dressOrderDTO.Any())
@@ -69,7 +69,7 @@ namespace api.Controllers
             if (dressOrder == null)
                 return NotFound("No order found");
 
-            DressOrderDTO dressOrderDTO = mapper.MapOrderToDTO(dressOrder);
+            DressOrderDTO dressOrderDTO = mapper.MapDressOrderToDressDTO(dressOrder);
 
             return Ok(dressOrderDTO);
         }
@@ -79,6 +79,14 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<string>> Post([FromBody] DressOrderDTO dressOrderDTO)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (dressOrderDTO.IsValid != false) {
+                return BadRequest("A new order can not have the attribute isValid set at other value then false");
+            }
+         
+            
             User customerFind = await userManager.FindByNameAsync(dressOrderDTO.CustomerName);
             if (customerFind == null)
                 return BadRequest("Customer does not exist");
@@ -114,6 +122,12 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         public async Task<ActionResult> Put([FromBody] DressOrderDTO dressOrderDTO)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (dressOrderDTO.OrderLines.Count < 1)
+                return BadRequest("An order can not be update without orderLines");
+
             User customerFind = await dbContext.User.Include(u => u.DressOrder).FirstOrDefaultAsync(u => u.Id == dressOrderDTO.CustomerId);
             if (customerFind == null)
                 return BadRequest("Customer does not exist");
@@ -127,29 +141,16 @@ namespace api.Controllers
 
             //A mettre dans mapper plus tard
 
-            dressOrder.BillingAddress = dressOrderDTO.BillingAddress;
-            dressOrder.BillingDate = dressOrderDTO.BillingDate;
-            dressOrder.DeliveryAddress = dressOrderDTO.DeliveryAddress;
-            dressOrder.DeliveryDate = dressOrderDTO.DeliveryDate;
-            dressOrder.IsValid = dressOrderDTO.IsValid;
-            HashSet<OrderLine> orderLines = new HashSet<OrderLine>();
+            dressOrder = mapper.MapDressOrderDtoToDressOrderModel(dressOrderDTO);
+
             foreach (OrderLineDTO orderLineDTO in dressOrderDTO.OrderLines) {
 
-                OrderLine orderLineFound = await dbContext.OrderLine.FirstOrDefaultAsync(l => l.DressId == orderLineDTO.DressId && l.DressOrderId == orderLineDTO.DressOrderId);
-                if (orderLineFound == null)
-                    orderLineFound = new OrderLine();
+                Dress dress = await dbContext.Dress.FirstOrDefaultAsync(d => d.Id == orderLineDTO.DressId);
+                if (dress == null)
+                    return BadRequest("The dress does not exist");
 
-                orderLineFound.DateBeginLocation = orderLineDTO.DateBeginLocation;
-                orderLineFound.DateEndLocation = orderLineDTO.DateEndLocation;
-                orderLineFound.Dress = await dbContext.Dress.FirstOrDefaultAsync(d => d.Id == orderLineDTO.DressId);
-                orderLineFound.DressOrder = await dbContext.DressOrder.FirstOrDefaultAsync(d => d.Id == orderLineDTO.DressOrderId);
-                orderLineFound.DressOrderId = orderLineDTO.DressOrderId;
-                orderLineFound.FinalPrice = orderLineDTO.FinalPrice;
-
-                orderLines.Add(orderLineFound);
+                dressOrder.OrderLine.Add(mapper.MapOrderLineDtoToOrderLineModel(orderLineDTO, dress, dressOrder));
             }
-
-            dressOrder.OrderLine = orderLines;
 
             try
             {

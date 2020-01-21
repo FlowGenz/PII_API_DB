@@ -50,20 +50,6 @@ namespace api.Controllers
             if (!favoritesDress.Any())
                 return NotFound("No favorites found");
 
-            /*List<FavoriteDTO> favoriteDTO = new List<FavoriteDTO>();
-            FavoriteDTO dto;
-
-            foreach (Favorites favorites in favoritesDress){
-                dto = new FavoriteDTO();
-                dto.Id = favorites.Id;
-                dto.DressName = favorites.Dress.DressName;
-                dto.DressPrice = favorites.Dress.Price;
-                dto.UrlImage = favorites.Dress.UrlImage;
-                dto.Available = favorites.Dress.Available;
-                favoriteDTO.Add(dto);
-            }*/
-
-
             return Ok(favoritesDress);
 
         }
@@ -85,9 +71,10 @@ namespace api.Controllers
             if (favoriteDressDTO.IsFavorite)
             {
                 favoriteDressDTO.FavoriteId = favoriteFound.Id;
-            } else
+            } 
+            else
             {
-                favoriteDressDTO.FavoriteId = "";
+                favoriteDressDTO.FavoriteId = null;
             } 
 
 
@@ -96,8 +83,8 @@ namespace api.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(String), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Post([FromBody] FavoriteDTO favoriteDTO) {
 
             Favorites favoriteFound = await dbContext.Favorites.FirstOrDefaultAsync(f => f.UserId == favoriteDTO.CustomerId && f.DressId == favoriteDTO.DressId);
@@ -117,8 +104,9 @@ namespace api.Controllers
             if (dressExist == null)
                 return BadRequest("Dress does not exist");
 
-            Favorites newFavorite = new Favorites();
+            //Déclaration nouv Favorite est propre ici ?
 
+            Favorites newFavorite = new Favorites();
             newFavorite.DressId = favoriteDTO.DressId;
             newFavorite.UserId = favoriteDTO.CustomerId;
 
