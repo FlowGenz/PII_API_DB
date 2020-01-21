@@ -27,8 +27,8 @@ namespace API_DbAccess
         [MaxLength(200)]
         public string Description { get; set; }
         [Required]
-        [Min(0)]
-        [Max(10000)]
+        [RegularExpression("[0-9]{1,4}.[0-9]{2}")]
+
         public decimal Price { get; set; }
         [Required]
         [MaxLength(5)]

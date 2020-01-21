@@ -11,9 +11,14 @@ using Microsoft.AspNetCore.Cors;
 using DTO;
 using Microsoft.AspNetCore.Identity;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace api.Controllers
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [EnableCors("_myAllowSpecificOrigins")]
+    [ApiController]
+    [Route("[controller]")]
     public class SentenceController : ApiController
     {
         private readonly PII_DBContext dbContext;
