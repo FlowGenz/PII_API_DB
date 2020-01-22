@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Identity;
 namespace api.Controllers
 {
     [ApiController]
+    [EnableCors("_myAllowSpecificOrigins")]
     [Route("[controller]")]
     public class JwtController : ControllerBase
     {

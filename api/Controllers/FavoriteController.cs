@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Cors;
 using DTO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace api.Controllers
 {
