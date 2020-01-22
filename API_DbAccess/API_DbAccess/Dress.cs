@@ -5,8 +5,6 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-//Mettre les tailles minimuns un peu partout
-
 namespace API_DbAccess
 {
     public partial class Dress

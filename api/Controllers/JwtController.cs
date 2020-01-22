@@ -53,8 +53,6 @@ namespace api.Controllers
                 return Unauthorized("Username or password invalid");
 
             var roles = await userManager.GetRolesAsync(customerFound);
-            /*if(!roles.Contains("ADMIN"))
-                return Unauthorized("You do not have the authorization to access this website");*/
 
             IEnumerable<Claim> claims = new[] {
                 new Claim(JwtRegisteredClaimNames.Sub, customerFound.UserName),
@@ -80,11 +78,6 @@ namespace api.Controllers
                 encodedJwt,
                 (int)_jwtOptions.ValidFor.TotalSeconds
             );
-
-            /*var response = new {
-                access_token = encodedJwt,
-                expires_in = (int)_jwtOptions.ValidFor.TotalSeconds
-            };*/
 
             return Ok(response);
         }

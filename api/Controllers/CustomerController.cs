@@ -99,9 +99,7 @@ namespace api.Controllers
 
             await userManager.CreateAsync(newUser, customerDTO.CustomerPassword);
 
-            // regarder de nouveau pour ces deux lignes de code
-
-            //await roleManager.CreateAsync(new IdentityRole("CUSTOMER"));
+            await roleManager.CreateAsync(new IdentityRole("CUSTOMER"));
             await userManager.AddToRoleAsync(newUser, "CUSTOMER");
 
             
@@ -136,7 +134,7 @@ namespace api.Controllers
             try
             {
                 await userManager.UpdateAsync(customerFound);
-                //dbContext.Entry(customerFound).Property("RowVersion").OriginalValue;
+                dbContext.Entry(customerFound).Property("RowVersion").OriginalValue;
             }
             catch (DbUpdateConcurrencyException ex)
             {

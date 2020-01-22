@@ -42,7 +42,7 @@ namespace api.Controllers
             IEnumerable<User> users = await userManager.GetUsersInRoleAsync("PARTNER");
 
             if (!users.Any())
-                return NotFound("No partener found");
+                return NotFound("No partner found");
 
             IEnumerable<PartnerDTO> customerDTOs = users.Select(x => mapper.MapPartnerToDTO(x));
 
