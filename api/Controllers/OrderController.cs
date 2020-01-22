@@ -133,7 +133,7 @@ namespace api.Controllers
             try
             {
                 dbContext.DressOrder.Update(dressOrder);
-                dbContext.Entry(dressOrder).Property("RowVersion").OriginalValue;
+                //dbContext.Entry(dressOrder).Property("RowVersion").OriginalValue;
                 dbContext.SaveChanges();
             }
             catch (DbUpdateConcurrencyException ex)

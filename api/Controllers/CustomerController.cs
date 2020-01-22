@@ -134,7 +134,7 @@ namespace api.Controllers
             try
             {
                 await userManager.UpdateAsync(customerFound);
-                dbContext.Entry(customerFound).Property("RowVersion").OriginalValue;
+                //dbContext.Entry(customerFound).Property("RowVersion").OriginalValue;
             }
             catch (DbUpdateConcurrencyException ex)
             {

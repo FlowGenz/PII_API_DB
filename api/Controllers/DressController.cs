@@ -125,7 +125,7 @@ namespace api.Controllers
             try
             {
                 dbContext.Dress.Update(dressUpdate);
-                dbContext.Entry(dressUpdate).Property("RowVersion").OriginalValue;
+                //dbContext.Entry(dressUpdate).Property("RowVersion").OriginalValue;
                 dbContext.SaveChanges();
             }
             catch (DbUpdateConcurrencyException ex)
