@@ -5,8 +5,8 @@ namespace DTO {
         private int expires_in;
 
         public JwtDTO(string access_token, int expires_in) {
-            this.access_token = access_token;
-            this.expires_in = expires_in;
+            Acces_token = access_token;
+            Expires_in = expires_in;
         }
 
         public string Acces_token {get; set;}

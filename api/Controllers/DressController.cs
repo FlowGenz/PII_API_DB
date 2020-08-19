@@ -49,6 +49,29 @@ namespace api.Controllers
             return Ok(dressesDTO);
         }
 
+
+        //TODO
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<DressDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<DressDTO>>> GetDressesPagination(int pageIndex = 0, int pageSize = 5)
+        {
+
+            IEnumerable<DressDTO> dressesDTO = await dbContext.Dress
+                .Include(u => u.User)
+                .OrderBy(u => u.Id)
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize)
+                .Select(x => mapper.MapDressToDTO(x))
+                .ToListAsync();
+
+            if (!dressesDTO.Any())
+                return NotFound("No dress found");
+
+            return Ok(dressesDTO);
+        }
+
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(DressDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
