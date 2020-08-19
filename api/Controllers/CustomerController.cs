@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Cors;
 using DTO;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace api.Controllers
 {
@@ -35,6 +37,7 @@ namespace api.Controllers
         }
 
         [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(IEnumerable<CustomerDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<CustomerDTO>>> Get()
@@ -51,6 +54,7 @@ namespace api.Controllers
         }
 
         [HttpGet("{username}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(CustomerDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<CustomerDTO>>> Get([FromRoute] string username)
@@ -95,9 +99,7 @@ namespace api.Controllers
 
             await userManager.CreateAsync(newUser, customerDTO.CustomerPassword);
 
-            // regarder de nouveau pour ces deux lignes de code
-
-            //await roleManager.CreateAsync(new IdentityRole("CUSTOMER"));
+            await roleManager.CreateAsync(new IdentityRole("CUSTOMER"));
             await userManager.AddToRoleAsync(newUser, "CUSTOMER");
 
             
@@ -105,6 +107,7 @@ namespace api.Controllers
         }
 
         [HttpPut]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
@@ -144,6 +147,7 @@ namespace api.Controllers
         }
 
         [HttpDelete("{customerId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]

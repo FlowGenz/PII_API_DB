@@ -10,9 +10,12 @@ using DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace api.Controllers
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
@@ -39,7 +42,7 @@ namespace api.Controllers
             IEnumerable<User> users = await userManager.GetUsersInRoleAsync("PARTNER");
 
             if (!users.Any())
-                return NotFound("No partener found");
+                return NotFound("No partner found");
 
             IEnumerable<PartnerDTO> customerDTOs = users.Select(x => mapper.MapPartnerToDTO(x));
 

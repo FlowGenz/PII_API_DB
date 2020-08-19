@@ -5,8 +5,6 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-//Mettre les tailles minimuns un peu partout
-
 namespace API_DbAccess
 {
     public partial class Dress
@@ -27,8 +25,8 @@ namespace API_DbAccess
         [MaxLength(200)]
         public string Description { get; set; }
         [Required]
-        [Min(0)]
-        [Max(10000)]
+        [RegularExpression("[0-9]{1,4}.[0-9]{2}")]
+
         public decimal Price { get; set; }
         [Required]
         [MaxLength(5)]

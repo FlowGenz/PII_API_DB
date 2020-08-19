@@ -16,6 +16,10 @@ using Microsoft.Extensions.Logging;
 using API_DbAccess;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using api.Options;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace api
 {
@@ -33,9 +37,50 @@ namespace api
         public void ConfigureServices(IServiceCollection services)
         { 
 
+            //Gestion token
+            string secretKey = "MaSuperCleSecreteANePasPublier"; //Devrait être placé dans des ressources et pas hardcodé
+            SymmetricSecurityKey _signingKey = new SymmetricSecurityKey
+            (Encoding.ASCII.GetBytes(secretKey));
+            services.Configure<JwtIssuerOptions>(options =>
+            {
+                options.Issuer = "MonSuperServeurDeJetons";
+                options.Audience = "http://localhost:5000";
+                options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
+            });
+
+            TokenValidationParameters tokenValidationParameters = new TokenValidationParameters {
+                ValidateIssuer = true,
+                ValidIssuer = "MonSuperServeurDeJetons",
+
+                ValidateAudience = true,
+                ValidAudience = "http://localhost:5000",
+
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = _signingKey,
+
+                RequireExpirationTime = true,
+                ValidateLifetime = true,
+
+                ClockSkew = TimeSpan.Zero
+            };
+
+            services.AddAuthentication(
+                options =>
+                {
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                }
+            )
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.Audience = "http://localhost:500";
+                options.ClaimsIssuer = "MonSUperServeurDeJetons";
+                options.TokenValidationParameters = tokenValidationParameters;
+                options.SaveToken = true;
+            });
+
             services.AddMvc(option => option.EnableEndpointRouting = false)
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-                .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+                //.AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             // Add Cross Origin Resource support
             services.AddCors(
                 options => {

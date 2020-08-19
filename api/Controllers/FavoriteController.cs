@@ -11,9 +11,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Cors;
 using DTO;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace api.Controllers
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
