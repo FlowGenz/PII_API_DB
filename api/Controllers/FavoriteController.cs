@@ -19,7 +19,7 @@ namespace api.Controllers
     [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
-    public class FavoriteController : ApiController
+    public class FavoriteController : DefaultController
     {
         private readonly UserManager<User> userManager;
 

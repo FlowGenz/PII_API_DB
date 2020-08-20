@@ -19,7 +19,7 @@ namespace api.Controllers
     [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
-    public class PartnerController : ApiController {
+    public class PartnerController : DefaultController {
         private readonly UserManager<User> userManager;
 
         public PartnerController(PII_DBContext dbContext, UserManager<User> userManager) : base(dbContext) {

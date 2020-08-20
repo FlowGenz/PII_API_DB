@@ -20,7 +20,7 @@ namespace api.Controllers
     [ApiController]
     [Route("[controller]")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class OrderController : ApiController
+    public class OrderController : DefaultController
     {
 
         private readonly UserManager<User> userManager;

@@ -18,7 +18,7 @@ namespace api.Controllers {
     [ApiController]
     [EnableCors("_myAllowSpecificOrigins")]
     [Route("[controller]")]
-    public class DressController : ApiController {
+    public class DressController : DefaultController {
 
         private UserManager<User> userManager;
         public DressController(PII_DBContext dbContext, UserManager<User> userManager) : base(dbContext) {

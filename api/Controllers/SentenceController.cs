@@ -19,7 +19,7 @@ namespace api.Controllers
     [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
-    public class SentenceController : ApiController
+    public class SentenceController : DefaultController
     {
         public SentenceController(PII_DBContext dbContext) : base(dbContext)
         {

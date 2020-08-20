@@ -9,18 +9,15 @@ using DTO;
 
 namespace api.Controllers
 {
-    [Produces("application/json")]
-    [ApiController]
-    [Route("[controller]")]
-    public class ApiController : ControllerBase
+    public class DefaultController : ControllerBase
     {
         private readonly PII_DBContext dbContext;
-        public ApiController(PII_DBContext dbContext)
+        public DefaultController(PII_DBContext dbContext)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public PII_DBContext GetPII_DBContext() {
+        protected PII_DBContext GetPII_DBContext() {
             return dbContext;
         }
     }

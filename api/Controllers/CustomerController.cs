@@ -18,7 +18,7 @@ namespace api.Controllers
     [ApiController]
     [Route("[controller]")]
     [EnableCors("_myAllowSpecificOrigins")]
-    public class CustomerController : ApiController
+    public class CustomerController : DefaultController
     {
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly UserManager<User> userManager;
