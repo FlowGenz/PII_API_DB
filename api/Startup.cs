@@ -33,13 +33,13 @@ namespace API {
             services.AddMvc(option => option.EnableEndpointRouting = false)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                 .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-            /*services.AddApiVersioning(
+            services.AddApiVersioning(
                 options => {
                     // reporting api versions will return the headers "api-supported-versions" and "api-deprecated-versions"
                     options.ReportApiVersions = true;
                     options.AssumeDefaultVersionWhenUnspecified = true;
                     options.DefaultApiVersion = new ApiVersion(1, 0);
-                });*/
+                });
 
             //Generation token
             SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
@@ -97,8 +97,8 @@ namespace API {
                 c => {
                     c.SwaggerDoc("v1", new OpenApiInfo {
                         Version = "v1",
-                        Title = "Wine API",
-                        Description = "An API about wine in ASP.NET Core Web API"
+                        Title = "PII_IG3",
+                        Description = "API for dresses IG3"
                     });
 
                 });
