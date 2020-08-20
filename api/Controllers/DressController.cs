@@ -42,6 +42,30 @@ namespace api.Controllers {
             return Ok(dressesDTO);
         }
 
+        /*[HttpGet("{pageIndex/pageSize}")]
+        [ProducesResponseType(typeof(IEnumerable<DressDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "PARTNER, ADMIN, CUSTOMER")]
+        public async Task<ActionResult<IEnumerable<DressDTO>>> Get(int pageIndex = 0, int pageSize = 6)
+        {
+
+            IEnumerable<DressDTO> dressesDTO = await GetPII_DBContext().Dress
+                .Include(u => u.User)
+                .OrderBy(u => u.Id)
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize)
+                .Select(x => Mapper.MapDressToDTO(x))
+                .ToListAsync();
+
+
+
+            if (!dressesDTO.Any())
+                return NotFound("No dress found");
+
+            return Ok(dressesDTO);
+        }*/
+
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(DressDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]

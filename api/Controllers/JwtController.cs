@@ -17,13 +17,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Cors;
 using DTO;
 using Microsoft.AspNetCore.Identity;
- 
+using Microsoft.AspNetCore.Authorization;
+
 namespace api.Controllers
 {
     [ApiController]
     [EnableCors("_myAllowSpecificOrigins")]
     [Route("[controller]")]
-    
+    [AllowAnonymous]
+
     public class JwtController : Controller
     {
 

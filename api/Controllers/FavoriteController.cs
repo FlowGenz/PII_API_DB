@@ -32,6 +32,7 @@ namespace api.Controllers
         [ProducesResponseType(typeof(FavoriteDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
         public async Task<ActionResult<IEnumerable<FavoriteDTO>>> Get([FromRoute] string username)
         {
             User user = await userManager.FindByNameAsync(username);
@@ -54,6 +55,7 @@ namespace api.Controllers
         [ProducesResponseType(typeof(FavoriteDressDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
         public async Task<ActionResult<bool>> Get([FromRoute] string username, [FromRoute] string dressId)
         {
             User user = await userManager.FindByNameAsync(username);
@@ -81,6 +83,7 @@ namespace api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(string), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "CUSTOMER")]
         public async Task<ActionResult> Post([FromBody] FavoriteDTO favoriteDTO) {
 
             Favorites favoriteFound = await GetPII_DBContext().Favorites.FirstOrDefaultAsync(f => f.UserId == favoriteDTO.CustomerId && f.DressId == favoriteDTO.DressId);
@@ -110,6 +113,7 @@ namespace api.Controllers
         [HttpDelete("{favoriteID}")]
         [ProducesResponseType(typeof(String), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "CUSTOMER")]
         public async Task<ActionResult> Delete([FromBody] string favoriteID) {
 
             Favorites favoriteFind = await GetPII_DBContext().Favorites.FirstOrDefaultAsync(f => f.Id == favoriteID);
