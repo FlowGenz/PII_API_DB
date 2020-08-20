@@ -75,6 +75,23 @@ namespace api.Controllers
             return Ok(dressOrderDTO);
         }
 
+        [HttpGet("{orderId}")]
+        [ProducesResponseType(typeof(DressOrderDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
+        public async Task<ActionResult<IEnumerable<DressOrderDTO>>> GetOneDressOrder([FromRoute] string orderId)
+        {
+
+            DressOrder dressOrder = await GetPII_DBContext().DressOrder.FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (dressOrder == null)
+                return NotFound("No order found");
+
+            DressOrderDTO dressOrderDTO = Mapper.MapDressOrderToDressDTO(dressOrder);
+
+            return Ok(dressOrderDTO);
+        }
+
         [HttpPost]
         [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
