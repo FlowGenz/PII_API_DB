@@ -18,7 +18,7 @@ namespace API {
         private readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         private readonly string secretKey = "eyJhbkdhgdkfs36fds4f684sdfds4fd4sdf684fd6d4s6f8ds4fd2ds468fds/fsdsfds646fds4?fsdfdfs6UcJq1B_pkpc";
         private readonly string issuer = "y/B?D(G+KbPeShVmY?fessdffsd654564dfs65/?df34dfs68f4ds?ffdds3438/rrdThWmZq4t7w9z$C&F)J@NcRfUjXn2r5u8x/A%D*G-KaPdSgVkYp3s6v9y$B&E(H+MbQeThWmZq4t7w!z%C*F-J@NcRfUjXn2r5u8x/A?D(G+KbPoQlVhMlN3UmR5Zl92Z3VnX2hmNThfNzk4LTk4Xzc4X1JjX0hrIiwiYXVkIjoiaHR0cHM6Ly93aW5lc2VydmljZS5henVyZXdlYnNpdGVzLm5Hk_Rc";
-        private readonly string audience = "https://localgost:10839/";
+        private readonly string audience = "https://localhost:10839/";
 
         public Startup(IConfiguration configuration) {
             Configuration = configuration;
