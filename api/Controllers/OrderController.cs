@@ -137,19 +137,11 @@ namespace api.Controllers
             if (dressOrderDTO.IsValid && (dressOrderDTO.DeliveryDate == null || dressOrderDTO.BillingDate == null))
                 return BadRequest("The order is not valid");
 
-            dressOrder = Mapper.MapDressOrderDtoToDressOrderModel(dressOrderDTO);
-
-            foreach (OrderLineDTO orderLineDTO in dressOrderDTO.OrderLines) {
-
-                Dress dress = await GetPII_DBContext().Dress.FirstOrDefaultAsync(d => d.Id == orderLineDTO.DressId);
-                if (dress == null)
-                    return BadRequest("The dress does not exist");
-
-                dressOrder.OrderLine.Add(Mapper.MapOrderLineDtoToOrderLineModel(orderLineDTO, dress, dressOrder));
-            }
+            
 
             try
             {
+
                 GetPII_DBContext().DressOrder.Update(dressOrder);
                 //dbContext.Entry(dressOrder).Property("RowVersion").OriginalValue;
                 GetPII_DBContext().SaveChanges();

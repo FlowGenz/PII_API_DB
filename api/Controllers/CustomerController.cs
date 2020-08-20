@@ -131,10 +131,12 @@ namespace api.Controllers
                     return BadRequest("phone number is already in use");
             }
 
-            customerFound = Mapper.MapCustomerDToToCustomerModel(customerDTO);
-
             try
             {
+                customerFound = Mapper.MapCustomerDToToCustomerModel(customerDTO);
+
+
+
                 await userManager.UpdateAsync(customerFound);
                 //dbContext.Entry(customerFound).Property("RowVersion").OriginalValue;
             }
