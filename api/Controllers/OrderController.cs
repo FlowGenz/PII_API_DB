@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using api.DTO;
 
 namespace api.Controllers
 {
@@ -37,16 +38,41 @@ namespace api.Controllers
         public async Task<ActionResult<IEnumerable<DressOrder>>> Get()
         {
             IEnumerable<DressOrderDTO> dressOrderDTO = await GetPII_DBContext().DressOrder
-                .Include(u => u.User)
+                .Include(o => o.User)
                 .Include(o => o.OrderLine)
                 .Include(o => o.OrderLine).ThenInclude(o => o.Dress)
-                .Select(x => Mapper.MapDressOrderToDressDTO(x))
+                .Select(x => Mapper.MapDressOrderModelToDressOrderDTO(x))
                 .ToListAsync();
 
             if (!dressOrderDTO.Any())
                 return NotFound("No order found");
 
             return Ok(dressOrderDTO);
+        }
+
+        //TODO héritage
+
+        [HttpGet("{pageIndex}/{pageSize}")]
+        [ProducesResponseType(typeof(IEnumerable<DressOrderDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
+        public async Task<ActionResult<IEnumerable<DressOrderDTO>>> Get([FromRoute]int pageIndex = 0, [FromRoute] int pageSize = 6)
+        {
+
+            IEnumerable<DressOrderDTO> dressesOrderDTO = await GetPII_DBContext().DressOrder
+                .Include(o => o.User)
+                .OrderBy(o => o.Id)
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize)
+                .Select(x => Mapper.MapDressOrderModelToDressOrderDTO(x))
+                .ToListAsync();
+
+            int count = await GetPII_DBContext().DressOrder.CountAsync();
+
+            if (count > 0 && dressesOrderDTO.Any())
+                return Ok(new PaginationDressOrderDTO(dressesOrderDTO, pageSize, pageIndex, (int)Math.Ceiling(count / (double)pageSize)));
+            return NotFound("No order found");
         }
 
         [HttpGet("{username}")]
@@ -71,7 +97,7 @@ namespace api.Controllers
             if (dressOrder == null)
                 return NotFound("No order found");
 
-            DressOrderDTO dressOrderDTO = Mapper.MapDressOrderToDressDTO(dressOrder);
+            DressOrderDTO dressOrderDTO = Mapper.MapDressOrderModelToDressOrderDTO(dressOrder);
             return Ok(dressOrderDTO);
         }
 
@@ -87,7 +113,7 @@ namespace api.Controllers
             if (dressOrder == null)
                 return NotFound("No order found");
 
-            DressOrderDTO dressOrderDTO = Mapper.MapDressOrderToDressDTO(dressOrder);
+            DressOrderDTO dressOrderDTO = Mapper.MapDressOrderModelToDressOrderDTO(dressOrder);
 
             return Ok(dressOrderDTO);
         }

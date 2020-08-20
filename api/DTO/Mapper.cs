@@ -11,7 +11,7 @@ namespace DTO {
 
         }
         
-        public static CustomerDTO MapCustomerToDTO(User customer) {
+        public static CustomerDTO MapCustomerModelToCustomerDTO(User customer) {
             CustomerDTO dto = new CustomerDTO();
             dto.Id = customer.Id;
             dto.FirstName = customer.FirstName;
@@ -25,7 +25,7 @@ namespace DTO {
             return dto;
         }
 
-        public static User MapCustomerDToToCustomerModel(CustomerDTO customerDTO) {
+        public static User MapCustomerDtoToCustomerModel(CustomerDTO customerDTO) {
             User newUser = new User();
             newUser.UserName = customerDTO.Username;
             newUser.UserAddress = customerDTO.CustomerAddress;
@@ -37,7 +37,7 @@ namespace DTO {
             return newUser;
         }
 
-        public static DressDTO MapDressToDTO(Dress dress) {
+        public static DressDTO MapDressModelToDressDTO(Dress dress) {
             DressDTO dto = new DressDTO();
             dto.Id = dress.Id;
             dto.DressName = dress.DressName;
@@ -53,7 +53,7 @@ namespace DTO {
             return dto;
         }
 
-        public static Dress MapDressDtoToDress(DressDTO dressDTO, User partner) {
+        public static Dress MapDressDtoToDressModel(DressDTO dressDTO, User partner) {
             Dress newDress = new Dress();
             newDress.DressName = dressDTO.DressName;
             newDress.Description = dressDTO.Description;
@@ -68,7 +68,7 @@ namespace DTO {
             return newDress;
         }
 
-        public static DressOrderDTO MapDressOrderToDressDTO(DressOrder dressOrder) {
+        public static DressOrderDTO MapDressOrderModelToDressOrderDTO(DressOrder dressOrder) {
             DressOrderDTO dto = new DressOrderDTO();
             dto.Id = dressOrder.Id;
             dto.BillingAddress = dressOrder.BillingAddress;
@@ -79,7 +79,7 @@ namespace DTO {
             dto.CustomerId = dressOrder.User.Id;
             dto.CustomerName = dressOrder.User.FirstName + dressOrder.User.LastName;
             foreach (OrderLine orderLine in dressOrder.OrderLine) {
-                dto.OrderLines.Add(MapOrderLineToDTO(orderLine));
+                dto.OrderLines.Add(MapOrderLineModelToOrderLineDTO(orderLine));
             }
             return dto;
         }
@@ -106,14 +106,14 @@ namespace DTO {
             return newOrderLine;
         }
 
-        public static PartnerDTO MapPartnerToDTO(User partner) {
+        public static PartnerDTO MapPartnerModelToPartnerDTO(User partner) {
             PartnerDTO dto = new PartnerDTO();
             dto.Id = partner.Id;
             dto.Username = partner.UserName;
             return dto;
         }
 
-        public static FavoriteDTO MapFavoriteToDTO(Favorites favorite) {
+        public static FavoriteDTO MapFavoriteModelToFavoriteDTO(Favorites favorite) {
             FavoriteDTO dto = new FavoriteDTO();
             dto.Id = favorite.Id;
             dto.DressName = favorite.Dress.DressName;
@@ -133,7 +133,7 @@ namespace DTO {
             return newFavorite;
         }
 
-        public static OrderLineDTO MapOrderLineToDTO(OrderLine orderLine) {
+        public static OrderLineDTO MapOrderLineModelToOrderLineDTO(OrderLine orderLine) {
             OrderLineDTO dto = new OrderLineDTO();
             dto.Id = orderLine.Id;
             dto.DateBeginLocation = orderLine.DateBeginLocation;

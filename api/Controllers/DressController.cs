@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using api.DTO;
 
 namespace api.Controllers {
     
@@ -32,8 +33,8 @@ namespace api.Controllers {
         public async Task<ActionResult<IEnumerable<DressDTO>>> Get() {
 
             IEnumerable<DressDTO> dressesDTO = await GetPII_DBContext().Dress
-                .Include(u => u.User)
-                .Select(x => Mapper.MapDressToDTO(x))
+                .Include(d => d.User)
+                .Select(d => Mapper.MapDressModelToDressDTO(d))
                 .ToListAsync();
 
             if (!dressesDTO.Any())
@@ -42,29 +43,30 @@ namespace api.Controllers {
             return Ok(dressesDTO);
         }
 
-        /*[HttpGet("{pageIndex/pageSize}")]
+        //TODO Héritage
+
+        [HttpGet("{pageIndex}/{pageSize}")]
         [ProducesResponseType(typeof(IEnumerable<DressDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "PARTNER, ADMIN, CUSTOMER")]
-        public async Task<ActionResult<IEnumerable<DressDTO>>> Get(int pageIndex = 0, int pageSize = 6)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
+        public async Task<ActionResult<IEnumerable<DressDTO>>> GetAllDressWithPagination([FromRoute]int pageIndex = 0, [FromRoute] int pageSize = 6)
         {
 
             IEnumerable<DressDTO> dressesDTO = await GetPII_DBContext().Dress
-                .Include(u => u.User)
-                .OrderBy(u => u.Id)
+                .Include(d => d.User)
+                .OrderBy(d => d.Id)
                 .Skip(pageIndex * pageSize)
                 .Take(pageSize)
-                .Select(x => Mapper.MapDressToDTO(x))
+                .Select(x => Mapper.MapDressModelToDressDTO(x))
                 .ToListAsync();
 
+            int count = await GetPII_DBContext().Dress.CountAsync();
 
-
-            if (!dressesDTO.Any())
-                return NotFound("No dress found");
-
-            return Ok(dressesDTO);
-        }*/
+            if (count > 0 && dressesDTO.Any())
+                return Ok(new PaginationDressDTO(dressesDTO, pageSize, pageIndex, (int)Math.Ceiling(count/(double)pageSize)));
+            return NotFound("No dress found");
+        }
 
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(DressDTO), StatusCodes.Status200OK)]
@@ -74,13 +76,13 @@ namespace api.Controllers {
         public async Task<ActionResult<DressDTO>> Get([FromRoute] string id)
         {
             Dress dress = await GetPII_DBContext().Dress
-                .Include(u => u.User)
-                .FirstOrDefaultAsync(u => u.Id == id);
+                .Include(d => d.User)
+                .FirstOrDefaultAsync(d => d.Id == id);
 
             if (dress == null)
                 return NotFound("No dress found");
 
-            DressDTO dressDTO = Mapper.MapDressToDTO(dress);
+            DressDTO dressDTO = Mapper.MapDressModelToDressDTO(dress);
 
             return Ok(dressDTO);
         }
@@ -104,7 +106,7 @@ namespace api.Controllers {
             if (dressFound != null)
                 return BadRequest("dress already exist");
 
-            Dress newDress = Mapper.MapDressDtoToDress(dressDTO, patnerFound);
+            Dress newDress = Mapper.MapDressDtoToDressModel(dressDTO, patnerFound);
 
             await GetPII_DBContext().Dress.AddAsync(newDress);
             await GetPII_DBContext().SaveChangesAsync();
@@ -136,7 +138,7 @@ namespace api.Controllers {
             if (patnerFound == null)
                 return BadRequest("Partner does not exist");
 
-            Dress dressUpdate = Mapper.MapDressDtoToDress(dressDTO, patnerFound);
+            Dress dressUpdate = Mapper.MapDressDtoToDressModel(dressDTO, patnerFound);
 
             try
             {

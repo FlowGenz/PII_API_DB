@@ -11,6 +11,7 @@ using DTO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using api.DTO;
 
 namespace api.Controllers
 {
@@ -40,9 +41,31 @@ namespace api.Controllers
             if (!users.Any())
                 return NotFound("No customer found");
 
-            IEnumerable<CustomerDTO> customerDTOs = users.Select(x => Mapper.MapCustomerToDTO(x));
+            IEnumerable<CustomerDTO> customerDTOs = users.Select(x => Mapper.MapCustomerModelToCustomerDTO(x));
 
             return Ok(customerDTOs);
+        }
+
+        [HttpGet("{pageIndex}/{pageSize}")]
+        [ProducesResponseType(typeof(IEnumerable<CustomerDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
+        public async Task<ActionResult<IEnumerable<CustomerDTO>>> Get([FromRoute]int pageIndex = 0, [FromRoute] int pageSize = 6)
+        {
+
+            IEnumerable<CustomerDTO> customersDTO = await GetPII_DBContext().User
+                .OrderBy(u => u.Id)
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize)
+                .Select(x => Mapper.MapCustomerModelToCustomerDTO(x))
+                .ToListAsync();
+
+            int count = await GetPII_DBContext().User.CountAsync();
+
+            if (count > 0 && customersDTO.Any())
+                return Ok(new PaginationCustomerDTO(customersDTO, pageSize, pageIndex, (int)Math.Ceiling(count / (double)pageSize)));
+            return NotFound("No customer found");
         }
 
 
@@ -58,7 +81,7 @@ namespace api.Controllers
             if (user == null)
                 return NotFound("No customer found");
 
-            CustomerDTO customerDTO = Mapper.MapCustomerToDTO(user);
+            CustomerDTO customerDTO = Mapper.MapCustomerModelToCustomerDTO(user);
 
             return Ok(customerDTO);
         }
@@ -89,7 +112,7 @@ namespace api.Controllers
                     return BadRequest("Phone number is already in use");
             }
 
-            User newUser = Mapper.MapCustomerDToToCustomerModel(customerDTO);
+            User newUser = Mapper.MapCustomerDtoToCustomerModel(customerDTO);
 
             IdentityResult result = await userManager.CreateAsync(newUser, customerDTO.CustomerPassword);
             //Check in startup file more efficient ? 
@@ -132,7 +155,7 @@ namespace api.Controllers
 
             try
             {
-                customerFound = Mapper.MapCustomerDToToCustomerModel(customerDTO);
+                customerFound = Mapper.MapCustomerDtoToCustomerModel(customerDTO);
 
 
 

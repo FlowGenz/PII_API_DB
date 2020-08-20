@@ -42,7 +42,7 @@ namespace api.Controllers
             IEnumerable<FavoriteDTO> favoritesDress = await GetPII_DBContext().Favorites
                 .Include(u => u.Dress)
                 .Where(x => x.UserId == user.Id)
-                .Select(x => Mapper.MapFavoriteToDTO(x))
+                .Select(x => Mapper.MapFavoriteModelToFavoriteDTO(x))
                 .ToListAsync();
 
             if (!favoritesDress.Any())

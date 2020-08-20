@@ -37,7 +37,7 @@ namespace api.Controllers
             if (!users.Any())
                 return NotFound("No partner found");
 
-            IEnumerable<PartnerDTO> customerDTOs = users.Select(x => Mapper.MapPartnerToDTO(x));
+            IEnumerable<PartnerDTO> customerDTOs = users.Select(x => Mapper.MapPartnerModelToPartnerDTO(x));
 
             return Ok(customerDTOs);
         }
