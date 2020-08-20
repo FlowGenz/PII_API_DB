@@ -1,12 +1,8 @@
 using System;
-using System.Reflection;
-using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using API_DbAccess;
 using Microsoft.AspNetCore.Http;
@@ -18,28 +14,25 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace api.Controllers
 {
-    [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
+    [EnableCors("_myAllowSpecificOrigins")]
     public class CustomerController : ApiController
     {
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly UserManager<User> userManager;
-        private readonly PII_DBContext dbContext;
-        private readonly Mapper mapper;
 
         public CustomerController(PII_DBContext dbContext, RoleManager<IdentityRole> roleManager, UserManager<User> userManager) : base(dbContext)
         {
-            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            this.roleManager = roleManager;
-            this.userManager = userManager;
-            mapper = new Mapper();
+            this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            this.roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
         }
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(IEnumerable<CustomerDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN")]
         public async Task<ActionResult<IEnumerable<CustomerDTO>>> Get()
         {
 
@@ -48,15 +41,15 @@ namespace api.Controllers
             if (!users.Any())
                 return NotFound("No customer found");
 
-            IEnumerable<CustomerDTO> customerDTOs = users.Select(x => mapper.MapCustomerToDTO(x));
+            IEnumerable<CustomerDTO> customerDTOs = users.Select(x => Mapper.MapCustomerToDTO(x));
 
             return Ok(customerDTOs);
         }
 
         [HttpGet("{username}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(CustomerDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN")]
         public async Task<ActionResult<IEnumerable<CustomerDTO>>> Get([FromRoute] string username)
         {
 
@@ -65,7 +58,7 @@ namespace api.Controllers
             if (user == null)
                 return NotFound("No customer found");
 
-            CustomerDTO customerDTO =  mapper.MapCustomerToDTO(user);
+            CustomerDTO customerDTO = Mapper.MapCustomerToDTO(user);
 
             return Ok(customerDTO);
         }
@@ -73,7 +66,7 @@ namespace api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        [AllowAnonymous]
         public async Task<ActionResult> Post([FromBody] CustomerDTO customerDTO)
         {
 
@@ -81,29 +74,37 @@ namespace api.Controllers
 
             if (customerFound != null)
                 return BadRequest("Username already exist");
-            
-            
+
+
             User isEmailAvailib = await userManager.FindByEmailAsync(customerDTO.Email);
-            if(isEmailAvailib != null)
-                return BadRequest("email is already in use");
+            if (isEmailAvailib != null)
+                return BadRequest("Email is already in use");
 
             customerDTO.PhoneNumber = customerDTO.PhoneNumber.Trim();
 
-            if (customerDTO.PhoneNumber != null) {
-                User isPhoneAvailib = dbContext.User.Where(u => u.PhoneNumber == customerDTO.PhoneNumber).FirstOrDefault();
+            if (customerDTO.PhoneNumber != null)
+            {
+                User isPhoneAvailib = GetPII_DBContext().User.Where(u => u.PhoneNumber == customerDTO.PhoneNumber).FirstOrDefault();
                 if (isPhoneAvailib != null)
-                    return BadRequest("phone number is already in use");
+                    return BadRequest("Phone number is already in use");
             }
 
-            User newUser = mapper.MapCustomerDToToCustomerModel(customerDTO);
+            User newUser = Mapper.MapCustomerDToToCustomerModel(customerDTO);
 
-            await userManager.CreateAsync(newUser, customerDTO.CustomerPassword);
+            IdentityResult result = await userManager.CreateAsync(newUser, customerDTO.CustomerPassword);
+            //Check in startup file more efficient ? 
+            if (!await roleManager.RoleExistsAsync("CUSTOMER"))
+                await roleManager.CreateAsync(new IdentityRole("CUSTOMER"));
 
-            await roleManager.CreateAsync(new IdentityRole("CUSTOMER"));
-            await userManager.AddToRoleAsync(newUser, "CUSTOMER");
-
-            
-            return Created("Customer created with success", newUser.Id);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(newUser, "CUSTOMER");
+                return Created("Customer created with success", null);
+            }
+            else
+            {
+                return BadRequest(result.Errors);
+            }
         }
 
         [HttpPut]
@@ -111,6 +112,7 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
         public async Task<ActionResult> Put([FromBody] CustomerDTO customerDTO)
         {
             User customerFound = await userManager.FindByNameAsync(customerDTO.Username);
@@ -124,12 +126,12 @@ namespace api.Controllers
 
             if (customerDTO.PhoneNumber != null && customerDTO.PhoneNumber != customerFound.PhoneNumber)
             {
-                User isPhoneAvailib = dbContext.User.Where(u => u.PhoneNumber == customerDTO.PhoneNumber).FirstOrDefault();
+                User isPhoneAvailib = GetPII_DBContext().User.Where(u => u.PhoneNumber == customerDTO.PhoneNumber).FirstOrDefault();
                 if (isPhoneAvailib != null)
                     return BadRequest("phone number is already in use");
             }
 
-            customerFound = mapper.MapCustomerDToToCustomerModel(customerDTO);
+            customerFound = Mapper.MapCustomerDToToCustomerModel(customerDTO);
 
             try
             {
@@ -151,10 +153,11 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN")]
         public async Task<ActionResult> Delete([FromRoute] string customerId)
         {
             User customerFound = await userManager.FindByIdAsync(customerId);
-         
+
             if (customerFound == null)
                 return NotFound("Customer does not exist");
 

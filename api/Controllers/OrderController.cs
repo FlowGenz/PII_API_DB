@@ -14,35 +14,33 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace api.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    
     [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class OrderController : ApiController
     {
 
-        private readonly PII_DBContext dbContext;
-        private readonly Mapper mapper;
         private readonly UserManager<User> userManager;
 
         public OrderController(PII_DBContext dbContext, UserManager<User> userManager) : base(dbContext)
         {
-            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             this.userManager = userManager;
-            mapper = new Mapper();
         }
 
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<DressOrderDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN")]
         public async Task<ActionResult<IEnumerable<DressOrder>>> Get()
         {
-            IEnumerable<DressOrderDTO> dressOrderDTO = await dbContext.DressOrder
+            IEnumerable<DressOrderDTO> dressOrderDTO = await GetPII_DBContext().DressOrder
                 .Include(u => u.User)
                 .Include(o => o.OrderLine)
                 .Include(o => o.OrderLine).ThenInclude(o => o.Dress)
-                .Select(x => mapper.MapDressOrderToDressDTO(x))
+                .Select(x => Mapper.MapDressOrderToDressDTO(x))
                 .ToListAsync();
 
             if (!dressOrderDTO.Any())
@@ -55,9 +53,10 @@ namespace api.Controllers
         [ProducesResponseType(typeof(DressOrderDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
         public async Task<ActionResult<IEnumerable<DressOrder>>> Get([FromRoute] string username)
         {
-            User user = await dbContext.User
+            User user = await GetPII_DBContext().User
                 .Include(u => u.DressOrder)
                 .ThenInclude(o => o.OrderLine)
                 .ThenInclude(o => o.Dress)
@@ -72,13 +71,31 @@ namespace api.Controllers
             if (dressOrder == null)
                 return NotFound("No order found");
 
-            DressOrderDTO dressOrderDTO = mapper.MapDressOrderToDressDTO(dressOrder);
+            DressOrderDTO dressOrderDTO = Mapper.MapDressOrderToDressDTO(dressOrder);
+            return Ok(dressOrderDTO);
+        }
+
+        [HttpGet("{orderId}")]
+        [ProducesResponseType(typeof(DressOrderDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
+        public async Task<ActionResult<IEnumerable<DressOrderDTO>>> GetOneDressOrder([FromRoute] string orderId)
+        {
+
+            DressOrder dressOrder = await GetPII_DBContext().DressOrder.FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (dressOrder == null)
+                return NotFound("No order found");
+
+            DressOrderDTO dressOrderDTO = Mapper.MapDressOrderToDressDTO(dressOrder);
+
             return Ok(dressOrderDTO);
         }
 
         [HttpPost]
         [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "CUSTOMER")]
         public async Task<ActionResult<string>> Post([FromBody] DressOrderDTO dressOrderDTO)
         {
 
@@ -90,11 +107,11 @@ namespace api.Controllers
             if (customerFind == null)
                 return BadRequest("Customer does not exist");
 
-            DressOrder dressOrder = mapper.MapDressOrderDtoToDressOrderModel(dressOrderDTO);
+            DressOrder dressOrder = Mapper.MapDressOrderDtoToDressOrderModel(dressOrderDTO);
             customerFind.DressOrder.Add(dressOrder);
 
-            await dbContext.DressOrder.AddAsync(dressOrder);
-            await dbContext.SaveChangesAsync();
+            await GetPII_DBContext().DressOrder.AddAsync(dressOrder);
+            await GetPII_DBContext().SaveChangesAsync();
             return Created("Dress order added with success", dressOrder.Id);
         }
 
@@ -102,13 +119,14 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN")]
         public async Task<ActionResult> Put([FromBody] DressOrderDTO dressOrderDTO)
         {
 
             if (dressOrderDTO.OrderLines.Count < 1)
                 return BadRequest("An order can not be update without orderLines");
 
-            User customerFind = await dbContext.User.Include(u => u.DressOrder).FirstOrDefaultAsync(u => u.Id == dressOrderDTO.CustomerId);
+            User customerFind = await GetPII_DBContext().User.Include(u => u.DressOrder).FirstOrDefaultAsync(u => u.Id == dressOrderDTO.CustomerId);
             if (customerFind == null)
                 return BadRequest("Customer does not exist");
 
@@ -119,22 +137,22 @@ namespace api.Controllers
             if (dressOrderDTO.IsValid && (dressOrderDTO.DeliveryDate == null || dressOrderDTO.BillingDate == null))
                 return BadRequest("The order is not valid");
 
-            dressOrder = mapper.MapDressOrderDtoToDressOrderModel(dressOrderDTO);
+            dressOrder = Mapper.MapDressOrderDtoToDressOrderModel(dressOrderDTO);
 
             foreach (OrderLineDTO orderLineDTO in dressOrderDTO.OrderLines) {
 
-                Dress dress = await dbContext.Dress.FirstOrDefaultAsync(d => d.Id == orderLineDTO.DressId);
+                Dress dress = await GetPII_DBContext().Dress.FirstOrDefaultAsync(d => d.Id == orderLineDTO.DressId);
                 if (dress == null)
                     return BadRequest("The dress does not exist");
 
-                dressOrder.OrderLine.Add(mapper.MapOrderLineDtoToOrderLineModel(orderLineDTO, dress, dressOrder));
+                dressOrder.OrderLine.Add(Mapper.MapOrderLineDtoToOrderLineModel(orderLineDTO, dress, dressOrder));
             }
 
             try
             {
-                dbContext.DressOrder.Update(dressOrder);
+                GetPII_DBContext().DressOrder.Update(dressOrder);
                 //dbContext.Entry(dressOrder).Property("RowVersion").OriginalValue;
-                dbContext.SaveChanges();
+                GetPII_DBContext().SaveChanges();
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -149,15 +167,16 @@ namespace api.Controllers
         [HttpDelete("{dressOrderId}")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
         public async Task<ActionResult<ObjectResult>> Delete([FromRoute] string dressOrderId) {
 
-            DressOrder dressOrderFound = await dbContext.DressOrder.FirstOrDefaultAsync(d => d.Id == dressOrderId);
+            DressOrder dressOrderFound = await GetPII_DBContext().DressOrder.FirstOrDefaultAsync(d => d.Id == dressOrderId);
 
             if (dressOrderFound == null)
                 return BadRequest("order does not exist");
 
-            dbContext.DressOrder.Remove(dressOrderFound);
-            await dbContext.SaveChangesAsync();
+            GetPII_DBContext().DressOrder.Remove(dressOrderFound);
+            await GetPII_DBContext().SaveChangesAsync();
 
             return Ok("Dress order added with success");
         }

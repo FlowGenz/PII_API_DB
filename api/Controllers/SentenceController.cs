@@ -16,27 +16,24 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace api.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
     public class SentenceController : ApiController
     {
-        private readonly PII_DBContext dbContext;
-
         public SentenceController(PII_DBContext dbContext) : base(dbContext)
         {
-            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
 
         [HttpGet]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "PARTNER, ADMIN, CUSTOMER")]
         public async Task<ActionResult<string>> Get()
         {
 
-            IEnumerable<SentencesOfTheDay> sentences = await dbContext.SentencesOfTheDay.ToListAsync();
+            IEnumerable<SentencesOfTheDay> sentences = await GetPII_DBContext().SentencesOfTheDay.ToListAsync();
             if (!sentences.Any())
                 return BadRequest("Error in the loading of the sentences of the day");
 

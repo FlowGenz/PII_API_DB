@@ -15,11 +15,13 @@ namespace api.Controllers
     public class ApiController : ControllerBase
     {
         private readonly PII_DBContext dbContext;
-        private readonly Mapper mapper;
         public ApiController(PII_DBContext dbContext)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            mapper = new Mapper();
+        }
+
+        public PII_DBContext GetPII_DBContext() {
+            return dbContext;
         }
     }
 }

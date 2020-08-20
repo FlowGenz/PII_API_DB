@@ -6,8 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace API_DbAccess
 {
-    public partial class User : IdentityUser
-    {
+    public partial class User : IdentityUser {
         public User()
         {
             Dress = new HashSet<Dress>();
