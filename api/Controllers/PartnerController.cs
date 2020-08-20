@@ -19,32 +19,25 @@ namespace api.Controllers
     [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
-    public class PartnerController : ApiController
-    {
-
-        private readonly PII_DBContext dbContext;
-        private readonly Mapper mapper;
+    public class PartnerController : ApiController {
         private readonly UserManager<User> userManager;
 
-        public PartnerController(PII_DBContext dbContext, UserManager<User> userManager) : base(dbContext)
-        {
-            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        public PartnerController(PII_DBContext dbContext, UserManager<User> userManager) : base(dbContext) {
             this.userManager = userManager;
-            mapper = new Mapper();
         }
     
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<PartnerDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<PartnerDTO>>> Get()
-        {
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
+        public async Task<ActionResult<IEnumerable<PartnerDTO>>> Get() {
 
             IEnumerable<User> users = await userManager.GetUsersInRoleAsync("PARTNER");
 
             if (!users.Any())
                 return NotFound("No partner found");
 
-            IEnumerable<PartnerDTO> customerDTOs = users.Select(x => mapper.MapPartnerToDTO(x));
+            IEnumerable<PartnerDTO> customerDTOs = users.Select(x => Mapper.MapPartnerToDTO(x));
 
             return Ok(customerDTOs);
         }

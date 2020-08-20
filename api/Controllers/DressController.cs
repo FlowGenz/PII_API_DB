@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using API_DbAccess;
 using DTO;
@@ -14,59 +12,28 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
-namespace api.Controllers
-{
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [Produces("application/json")]
-    [EnableCors("_myAllowSpecificOrigins")]
+namespace api.Controllers {
+    
     [ApiController]
+    [EnableCors("_myAllowSpecificOrigins")]
     [Route("[controller]")]
-    public class DressController : ApiController
-    {
+    public class DressController : ApiController {
 
-        private readonly PII_DBContext dbContext;
         private UserManager<User> userManager;
-        private readonly Mapper mapper;
-        public DressController(PII_DBContext dbContext, UserManager<User> userManager) : base(dbContext)
-        {
-            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        public DressController(PII_DBContext dbContext, UserManager<User> userManager) : base(dbContext) {
             this.userManager = userManager;
-            mapper = new Mapper();
         }
 
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<DressDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<DressDTO>>> Get()
-        {
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "PARTNER, ADMIN, CUSTOMER")]
+        public async Task<ActionResult<IEnumerable<DressDTO>>> Get() {
 
-            IEnumerable<DressDTO> dressesDTO = await dbContext.Dress
+            IEnumerable<DressDTO> dressesDTO = await GetPII_DBContext().Dress
                 .Include(u => u.User)
-                .Select(x => mapper.MapDressToDTO(x))
-                .ToListAsync();
-
-            if (!dressesDTO.Any())
-                return NotFound("No dress found");
-
-            return Ok(dressesDTO);
-        }
-
-
-        //TODO
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<DressDTO>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<DressDTO>>> GetDressesPagination(int pageIndex = 0, int pageSize = 5)
-        {
-
-            IEnumerable<DressDTO> dressesDTO = await dbContext.Dress
-                .Include(u => u.User)
-                .OrderBy(u => u.Id)
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize)
-                .Select(x => mapper.MapDressToDTO(x))
+                .Select(x => Mapper.MapDressToDTO(x))
                 .ToListAsync();
 
             if (!dressesDTO.Any())
@@ -79,16 +46,17 @@ namespace api.Controllers
         [ProducesResponseType(typeof(DressDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "PARTNER, ADMIN, CUSTOMER")]
         public async Task<ActionResult<DressDTO>> Get([FromRoute] string id)
         {
-            Dress dress = await dbContext.Dress
+            Dress dress = await GetPII_DBContext().Dress
                 .Include(u => u.User)
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             if (dress == null)
                 return NotFound("No dress found");
 
-            DressDTO dressDTO = mapper.MapDressToDTO(dress);
+            DressDTO dressDTO = Mapper.MapDressToDTO(dress);
 
             return Ok(dressDTO);
         }
@@ -97,7 +65,7 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "PARTNER, ADMIN")]
         public async Task<ActionResult> Post([FromBody] DressDTO dressDTO) {
 
             if (dressDTO.DateEndAvailable != null && DateTime.Compare((DateTime)dressDTO.DateEndAvailable, dressDTO.DateBeginAvailable) < 0)
@@ -107,15 +75,15 @@ namespace api.Controllers
             if (patnerFound == null)
                 return BadRequest("Partner does not exist");
 
-            Dress dressFound = await dbContext.Dress.FirstOrDefaultAsync(d => d.DressName == dressDTO.DressName);
+            Dress dressFound = await GetPII_DBContext().Dress.FirstOrDefaultAsync(d => d.DressName == dressDTO.DressName);
 
             if (dressFound != null)
                 return BadRequest("dress already exist");
 
-            Dress newDress = mapper.MapDressDtoToDress(dressDTO, patnerFound);
+            Dress newDress = Mapper.MapDressDtoToDress(dressDTO, patnerFound);
 
-            await dbContext.Dress.AddAsync(newDress);
-            await dbContext.SaveChangesAsync();
+            await GetPII_DBContext().Dress.AddAsync(newDress);
+            await GetPII_DBContext().SaveChangesAsync();
 
             return Ok("Dress added with success");
         }
@@ -124,16 +92,17 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "PARTNER, ADMIN")]
         public async Task<ActionResult> Put([FromBody] DressDTO dressDTO)
         {
-            Dress dressFound = await dbContext.Dress.FindAsync(dressDTO.Id);
+            Dress dressFound = await GetPII_DBContext().Dress.FindAsync(dressDTO.Id);
 
             if (dressFound == null)
                 return NotFound("Dress does not exist");
 
             if (dressFound.DressName != dressDTO.DressName){
 
-                Dress dressNameFound = await dbContext.Dress.FirstOrDefaultAsync(d => d.DressName == dressDTO.DressName);
+                Dress dressNameFound = await GetPII_DBContext().Dress.FirstOrDefaultAsync(d => d.DressName == dressDTO.DressName);
 
                 if (dressNameFound != null)
                     return BadRequest("dress name already exist");
@@ -143,13 +112,13 @@ namespace api.Controllers
             if (patnerFound == null)
                 return BadRequest("Partner does not exist");
 
-            Dress dressUpdate = mapper.MapDressDtoToDress(dressDTO, patnerFound);
+            Dress dressUpdate = Mapper.MapDressDtoToDress(dressDTO, patnerFound);
 
             try
             {
-                dbContext.Dress.Update(dressUpdate);
+                GetPII_DBContext().Dress.Update(dressUpdate);
                 //dbContext.Entry(dressUpdate).Property("RowVersion").OriginalValue;
-                dbContext.SaveChanges();
+                GetPII_DBContext().SaveChanges();
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -164,15 +133,16 @@ namespace api.Controllers
         [HttpDelete("{dressId}")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "PARTNER, ADMIN")]
         public async Task<ActionResult> Delete([FromRoute] string dressId) {
 
-            Dress dressFound = await dbContext.Dress.FindAsync(dressId);
+            Dress dressFound = await GetPII_DBContext().Dress.FindAsync(dressId);
 
             if (dressFound == null)
                 return NotFound("Dress does not exist");
 
-            dbContext.Dress.Remove(dressFound);
-            dbContext.SaveChanges();
+            GetPII_DBContext().Dress.Remove(dressFound);
+            GetPII_DBContext().SaveChanges();
 
             return Ok("Dress deleted with success");
         }

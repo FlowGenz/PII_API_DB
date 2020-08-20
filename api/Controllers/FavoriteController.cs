@@ -16,22 +16,16 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace api.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("[controller]")]
     public class FavoriteController : ApiController
     {
-
-        private readonly PII_DBContext dbContext;
-        private readonly Mapper mapper;
         private readonly UserManager<User> userManager;
 
         public FavoriteController(PII_DBContext dbContext, UserManager<User> userManager) : base(dbContext)
         {
-            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             this.userManager = userManager;
-            mapper = new Mapper();
         }
 
         [HttpGet("{username}")]
@@ -44,10 +38,10 @@ namespace api.Controllers
             if (user == null)
                 return BadRequest("Customer does not exist");
 
-            IEnumerable<FavoriteDTO> favoritesDress = await dbContext.Favorites
+            IEnumerable<FavoriteDTO> favoritesDress = await GetPII_DBContext().Favorites
                 .Include(u => u.Dress)
                 .Where(x => x.UserId == user.Id)
-                .Select(x => mapper.MapFavoriteToDTO(x))
+                .Select(x => Mapper.MapFavoriteToDTO(x))
                 .ToListAsync();
 
             if (!favoritesDress.Any())
@@ -66,7 +60,7 @@ namespace api.Controllers
             if (user == null)
                 return BadRequest("Customer does not exist");
 
-            Favorites favoriteFound = dbContext.Favorites.FirstOrDefault(d => d.DressId == dressId && d.UserId == user.Id);
+            Favorites favoriteFound = GetPII_DBContext().Favorites.FirstOrDefault(d => d.DressId == dressId && d.UserId == user.Id);
 
             FavoriteDressDTO favoriteDressDTO = new FavoriteDressDTO();
 
@@ -89,13 +83,13 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Post([FromBody] FavoriteDTO favoriteDTO) {
 
-            Favorites favoriteFound = await dbContext.Favorites.FirstOrDefaultAsync(f => f.UserId == favoriteDTO.CustomerId && f.DressId == favoriteDTO.DressId);
+            Favorites favoriteFound = await GetPII_DBContext().Favorites.FirstOrDefaultAsync(f => f.UserId == favoriteDTO.CustomerId && f.DressId == favoriteDTO.DressId);
 
             if (favoriteFound != null)
                 return BadRequest("Favorite already exist");
 
-            User customerExist = await dbContext.User.FindAsync(favoriteDTO.CustomerId);
-            Dress dressExist = await dbContext.Dress.FindAsync(favoriteDTO.DressId);
+            User customerExist = await GetPII_DBContext().User.FindAsync(favoriteDTO.CustomerId);
+            Dress dressExist = await GetPII_DBContext().Dress.FindAsync(favoriteDTO.DressId);
 
             if (customerExist == null && dressExist == null)
                 return BadRequest("Customer and dress do not exist");
@@ -106,10 +100,10 @@ namespace api.Controllers
             if (dressExist == null)
                 return BadRequest("Dress does not exist");
 
-            Favorites newFavorite =  mapper.MapFavoriteDtoToFavoriteModel(favoriteDTO, customerExist, dressExist);
+            Favorites newFavorite = Mapper.MapFavoriteDtoToFavoriteModel(favoriteDTO, customerExist, dressExist);
 
-            dbContext.Favorites.Add(newFavorite);
-            dbContext.SaveChanges();
+            GetPII_DBContext().Favorites.Add(newFavorite);
+            GetPII_DBContext().SaveChanges();
             return Created("Favorite added with success", newFavorite.Id);
         }
 
@@ -118,13 +112,13 @@ namespace api.Controllers
         [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Delete([FromBody] string favoriteID) {
 
-            Favorites favoriteFind = await dbContext.Favorites.FirstOrDefaultAsync(f => f.Id == favoriteID);
+            Favorites favoriteFind = await GetPII_DBContext().Favorites.FirstOrDefaultAsync(f => f.Id == favoriteID);
 
             if (favoriteFind == null) 
                 return NotFound("Favorite not found");
 
-            dbContext.Favorites.Remove(favoriteFind);
-            dbContext.SaveChanges();
+            GetPII_DBContext().Favorites.Remove(favoriteFind);
+            GetPII_DBContext().SaveChanges();
             return Ok("Favorite deleted with success");
         }
     }

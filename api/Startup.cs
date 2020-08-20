@@ -1,59 +1,61 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using API_DbAccess;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System;
 using System.Text;
+using API_DbAccess;
+using Microsoft.AspNetCore.Identity;
 using api.Options;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
-namespace api
-{
-    public class Startup
-    {
+namespace API {
+    public class Startup {
         private readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-        public Startup(IConfiguration configuration)
-        {
+        private readonly string secretKey = "eyJhbkdhgdkfs36fds4f684sdfds4fd4sdf684fd6d4s6f8ds4fd2ds468fds/fsdsfds646fds4?fsdfdfs6UcJq1B_pkpc";
+        private readonly string issuer = "y/B?D(G+KbPeShVmY?fessdffsd654564dfs65/?df34dfs68f4ds?ffdds3438/rrdThWmZq4t7w9z$C&F)J@NcRfUjXn2r5u8x/A%D*G-KaPdSgVkYp3s6v9y$B&E(H+MbQeThWmZq4t7w!z%C*F-J@NcRfUjXn2r5u8x/A?D(G+KbPoQlVhMlN3UmR5Zl92Z3VnX2hmNThfNzk4LTk4Xzc4X1JjX0hrIiwiYXVkIjoiaHR0cHM6Ly93aW5lc2VydmljZS5henVyZXdlYnNpdGVzLm5Hk_Rc";
+        private readonly string audience = "https://localgost:10839/";
+
+        public Startup(IConfiguration configuration) {
             Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        { 
+        public void ConfigureServices(IServiceCollection services) {
 
-            //Gestion token
-            string secretKey = "MaSuperCleSecreteANePasPublier"; //Devrait être placé dans des ressources et pas hardcodé
-            SymmetricSecurityKey _signingKey = new SymmetricSecurityKey
-            (Encoding.ASCII.GetBytes(secretKey));
-            services.Configure<JwtIssuerOptions>(options =>
-            {
-                options.Issuer = "MonSuperServeurDeJetons";
-                options.Audience = "http://localhost:5000";
+            services.AddDbContext<PII_DBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DressDatabase")));
+            services.AddMvc(option => option.EnableEndpointRouting = false)
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            /*services.AddApiVersioning(
+                options => {
+                    // reporting api versions will return the headers "api-supported-versions" and "api-deprecated-versions"
+                    options.ReportApiVersions = true;
+                    options.AssumeDefaultVersionWhenUnspecified = true;
+                    options.DefaultApiVersion = new ApiVersion(1, 0);
+                });*/
+
+            //Generation token
+            SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
+            services.Configure<JwtIssuerOptions>(options => {
+                options.Issuer = issuer;
+                options.Audience = audience;
                 options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
             });
 
-            TokenValidationParameters tokenValidationParameters = new TokenValidationParameters {
+            //connection with token
+            var tokenValidationParameters = new TokenValidationParameters {
                 ValidateIssuer = true,
-                ValidIssuer = "MonSuperServeurDeJetons",
+                ValidIssuer = issuer,
 
                 ValidateAudience = true,
-                ValidAudience = "http://localhost:5000",
+                ValidAudience = audience,
 
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = _signingKey,
@@ -64,68 +66,65 @@ namespace api
                 ClockSkew = TimeSpan.Zero
             };
 
-            services.AddAuthentication(
-                options =>
-                {
-                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                }
-            )
-            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-            {
-                options.Audience = "http://localhost:500";
-                options.ClaimsIssuer = "MonSUperServeurDeJetons";
-                options.TokenValidationParameters = tokenValidationParameters;
-                options.SaveToken = true;
-            });
+            services
+                .AddAuthentication(
+                options => {
+                    options.DefaultScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+                    //options.DefaultChallengeScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme, options => {
+                    options.Audience = audience;
+                    options.ClaimsIssuer = issuer;
+                    options.TokenValidationParameters = tokenValidationParameters;
+                    options.SaveToken = true;
+                });
 
-            services.AddMvc(option => option.EnableEndpointRouting = false)
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-                //.AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             // Add Cross Origin Resource support
             services.AddCors(
                 options => {
                     options.AddPolicy(MyAllowSpecificOrigins, builder => {
-                        builder.WithOrigins("http://localhost:5000",
+                        builder.WithOrigins("http://localhost:64342",
+                                "https://wineservice.azurewebsites.net",
                                 "http://localhost:4200",
-                                "https://dressservice.azurewebsites.net")
+                                "https://localhost:44311")
                             .AllowAnyHeader()
                             .AllowAnyMethod();
                     });
                 });
 
+            // Register the Swagger generator, defining 1 or more Swagger documents
+            services.AddSwaggerGen(
+                c => {
+                    c.SwaggerDoc("v1", new OpenApiInfo {
+                        Version = "v1",
+                        Title = "Wine API",
+                        Description = "An API about wine in ASP.NET Core Web API"
+                    });
+
+                });
             //Identity security
             services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<PII_DBContext>();
 
             services.AddControllers();
-
-            services.AddDbContext<PII_DBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DressDatabase")));
-            // Register the Swagger generator, defining 1 or more Swagger documents
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
-            });    
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
+            if(env.IsDevelopment()) {
+                app.UseDeveloperExceptionPage();
+            }
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger(c => c.SerializeAsV2 = true);
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
             // specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(c =>
-            {
+            app.UseSwaggerUI(c => {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
 
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
 
             //configuring Cross Origin Resource Sharing policy
             app.UseCors(MyAllowSpecificOrigins);
@@ -137,8 +136,7 @@ namespace api
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
+            app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
             });
         }

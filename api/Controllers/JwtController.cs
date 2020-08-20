@@ -23,19 +23,15 @@ namespace api.Controllers
     [ApiController]
     [EnableCors("_myAllowSpecificOrigins")]
     [Route("[controller]")]
-    public class JwtController : ControllerBase
+    
+    public class JwtController : Controller
     {
 
         private readonly UserManager<User> userManager;
-        private readonly PII_DBContext dbContext;
-        private readonly Mapper mapper;
         private readonly JwtIssuerOptions _jwtOptions;
 
-        public JwtController(IOptions<JwtIssuerOptions> jwtOptions, PII_DBContext dbContext, UserManager<User> userManager )
-        {
-            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        public JwtController(IOptions<JwtIssuerOptions> jwtOptions, PII_DBContext dbContext, UserManager<User> userManager ) {
             this.userManager = userManager;
-            mapper = new Mapper();
             _jwtOptions = jwtOptions.Value;
         }
 
@@ -53,6 +49,8 @@ namespace api.Controllers
                 return Unauthorized("Username or password invalid");
 
             var roles = await userManager.GetRolesAsync(customerFound);
+            if(roles == null)
+                return Unauthorized();
 
             IEnumerable<Claim> claims = new[] {
                 new Claim(JwtRegisteredClaimNames.Sub, customerFound.UserName),
@@ -76,7 +74,8 @@ namespace api.Controllers
 
             JwtDTO response = new JwtDTO(
                 encodedJwt,
-                (int)_jwtOptions.ValidFor.TotalSeconds
+                (int)_jwtOptions.ValidFor.TotalSeconds,
+                roles.ToArray()
             );
 
             return Ok(response);
