@@ -126,14 +126,6 @@ namespace api.Controllers {
             if (dressFound == null)
                 return NotFound("Dress does not exist");
 
-            if (dressFound.DressName != dressDTO.DressName){
-
-                Dress dressNameFound = await GetPII_DBContext().Dress.FirstOrDefaultAsync(d => d.DressName == dressDTO.DressName);
-
-                if (dressNameFound != null)
-                    return BadRequest("dress name already exist");
-            }
-
             User patnerFound = await userManager.FindByIdAsync(dressDTO.PartnerId);
             if (patnerFound == null)
                 return BadRequest("Partner does not exist");

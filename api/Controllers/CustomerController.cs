@@ -142,17 +142,6 @@ namespace api.Controllers
             if (customerFound == null)
                 return NotFound("Customer does not exist");
 
-            User isEmailAvailib = await userManager.FindByEmailAsync(customerDTO.Email);
-            if (isEmailAvailib != null)
-                return BadRequest("email is already in use");
-
-            if (customerDTO.PhoneNumber != null && customerDTO.PhoneNumber != customerFound.PhoneNumber)
-            {
-                User isPhoneAvailib = GetPII_DBContext().User.Where(u => u.PhoneNumber == customerDTO.PhoneNumber).FirstOrDefault();
-                if (isPhoneAvailib != null)
-                    return BadRequest("phone number is already in use");
-            }
-
             try
             {
                 customerFound = Mapper.MapCustomerDtoToCustomerModel(customerDTO);
