@@ -77,6 +77,7 @@ namespace api.Controllers
                 return Ok(new PaginationCustomerDTO(customersDTO, pageIndex, pageSize, (int)Math.Ceiling(count / (double)pageSize)));
             return NotFound("No customer found");
         }
+        
 
 
         [HttpGet("{username}")]
