@@ -32,7 +32,6 @@ namespace api.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<DressOrderDTO>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN")]
         public async Task<ActionResult<IEnumerable<DressOrder>>> Get()
@@ -50,12 +49,9 @@ namespace api.Controllers
             return Ok(dressOrderDTO);
         }
 
-        //TODO héritage
-
         [HttpGet("{pageIndex}/{pageSize}")]
         [ProducesResponseType(typeof(PaginationDressOrderDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
         public async Task<ActionResult<PaginationDressOrderDTO>> GetAllOrdersWithPagination([FromRoute]int pageIndex = 0, [FromRoute] int pageSize = 6)
         {
@@ -129,12 +125,12 @@ namespace api.Controllers
         {
 
             if (dressOrderDTO.IsValid != false) {
-                return BadRequest("A new order can not have the attribute isValid set at other value then false");
+                return BadRequest("A new order can not have the attribute isValid set as another value than false");
             }
             
             User customerFind = await userManager.FindByNameAsync(dressOrderDTO.CustomerName);
             if (customerFind == null)
-                return BadRequest("Customer does not exist");
+                return BadRequest("Customer must exists");
 
             DressOrder dressOrder = Mapper.MapDressOrderDtoToDressOrderModel(dressOrderDTO);
             customerFind.DressOrder.Add(dressOrder);
@@ -146,22 +142,27 @@ namespace api.Controllers
 
         [HttpPut]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN")]
         public async Task<ActionResult> Put([FromBody] DressOrderDTO dressOrderDTO)
         {
 
+            DressOrder dressOrderFound = await GetPII_DBContext().DressOrder.FirstOrDefaultAsync(d => d.Id == dressOrderDTO.Id);
+            if (dressOrderFound == null)
+                return NotFound("Order does not exist");
+
             if (dressOrderDTO.OrderLines.Count < 1)
-                return BadRequest("An order can not be update without orderLines");
+                return BadRequest("An order can not be updated without orderLines");
 
             User customerFind = await GetPII_DBContext().User.Include(u => u.DressOrder).FirstOrDefaultAsync(u => u.Id == dressOrderDTO.CustomerId);
             if (customerFind == null)
-                return BadRequest("Customer does not exist");
+                return BadRequest("Customer must exists");
 
             DressOrder dressOrderFound = customerFind.DressOrder.FirstOrDefault(d => d.IsValid == false);
             if (dressOrderFound == null)
-                return BadRequest("The customer do not have a order in use");
+                return BadRequest("The order must be assigned to a customer");
 
             if (dressOrderDTO.IsValid && (dressOrderDTO.DeliveryDate == null || dressOrderDTO.BillingDate == null))
                 return BadRequest("The order is not valid");

@@ -37,7 +37,7 @@ namespace api.Controllers
         {
             User user = await userManager.FindByNameAsync(username);
             if (user == null)
-                return BadRequest("Customer does not exist");
+                return BadRequest("Customer must exists");
 
             IEnumerable<FavoriteDTO> favoritesDress = await GetPII_DBContext().Favorites
                 .Include(u => u.Dress)
@@ -60,9 +60,11 @@ namespace api.Controllers
         {
             User user = await userManager.FindByNameAsync(username);
             if (user == null)
-                return BadRequest("Customer does not exist");
+                return BadRequest("Customer must exists");
 
             Favorites favoriteFound = GetPII_DBContext().Favorites.FirstOrDefault(d => d.DressId == dressId && d.UserId == user.Id);
+            if (favoriteFound == null)
+                return NotFound("No favorite found");
 
             FavoriteDressDTO favoriteDressDTO = new FavoriteDressDTO();
 
@@ -89,30 +91,30 @@ namespace api.Controllers
             Favorites favoriteFound = await GetPII_DBContext().Favorites.FirstOrDefaultAsync(f => f.UserId == favoriteDTO.CustomerId && f.DressId == favoriteDTO.DressId);
 
             if (favoriteFound != null)
-                return BadRequest("Favorite already exist");
+                return BadRequest("Favorite already exists");
 
             User customerExist = await GetPII_DBContext().User.FindAsync(favoriteDTO.CustomerId);
             Dress dressExist = await GetPII_DBContext().Dress.FindAsync(favoriteDTO.DressId);
 
             if (customerExist == null && dressExist == null)
-                return BadRequest("Customer and dress do not exist");
+                return BadRequest("Customer and dress must exist");
 
             if (customerExist == null)
-                return BadRequest("Customer does not exist");
+                return BadRequest("Customer must exists");
 
             if (dressExist == null)
-                return BadRequest("Dress does not exist");
+                return BadRequest("Dress must exists");
 
             Favorites newFavorite = Mapper.MapFavoriteDtoToFavoriteModel(favoriteDTO, customerExist, dressExist);
 
             GetPII_DBContext().Favorites.Add(newFavorite);
             GetPII_DBContext().SaveChanges();
-            return Created("Favorite added with success", newFavorite.Id);
+            return Created("Favorite added with success", null);
         }
 
         [HttpDelete("{favoriteID}")]
         [ProducesResponseType(typeof(String), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(String), StatusCodes.Status404NotFound)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "CUSTOMER")]
         public async Task<ActionResult> Delete([FromBody] string favoriteID) {
 

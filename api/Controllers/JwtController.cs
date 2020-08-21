@@ -48,11 +48,11 @@ namespace api.Controllers
             User customerFound = await userManager.FindByNameAsync(model.Username);
             bool isPasswordValid = await userManager.CheckPasswordAsync(customerFound, model.Password);
             if (customerFound == null || !isPasswordValid)
-                return Unauthorized("Username or password invalid");
+                return Unauthorized("Incorrect username or password");
 
             var roles = await userManager.GetRolesAsync(customerFound);
             if(roles == null)
-                return Unauthorized();
+                return Unauthorized("User has no role");
 
             IEnumerable<Claim> claims = new[] {
                 new Claim(JwtRegisteredClaimNames.Sub, customerFound.UserName),

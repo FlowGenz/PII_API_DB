@@ -50,7 +50,6 @@ namespace api.Controllers
         [HttpGet("{pageIndex}/{pageSize}")]
         [ProducesResponseType(typeof(PaginationCustomerDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
         public async Task<ActionResult<PaginationCustomerDTO>> GetAllCustomerWithPagination([FromRoute]int pageIndex = 0, [FromRoute] int pageSize = 6)
         {
@@ -99,6 +98,7 @@ namespace api.Controllers
 
         [HttpPost]
         [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         [AllowAnonymous]
         public async Task<ActionResult> Post([FromBody] CustomerDTO customerDTO)
@@ -107,7 +107,7 @@ namespace api.Controllers
             User customerFound = await userManager.FindByNameAsync(customerDTO.Username);
 
             if (customerFound != null)
-                return BadRequest("Username already exist");
+                return BadRequest("Username already exists");
 
 
             User isEmailAvailib = await userManager.FindByEmailAsync(customerDTO.Email);
@@ -174,7 +174,7 @@ namespace api.Controllers
             {
                 var entry = ex.Entries.Single();
                 entry.OriginalValues.SetValues(entry.GetDatabaseValues());
-                return Conflict("Conflict detected, transation cancel");
+                return Conflict("Conflict detected, transaction canceled");
             }
 
             return Ok("Customer updated with success");
@@ -183,7 +183,6 @@ namespace api.Controllers
         [HttpDelete("{customerId}")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN")]
         public async Task<ActionResult> Delete([FromRoute] string customerId)
         {
