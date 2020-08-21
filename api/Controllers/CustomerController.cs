@@ -149,6 +149,7 @@ namespace api.Controllers
 
 
                 await userManager.UpdateAsync(customerFound);
+                await GetPII_DBContext().SaveChangesAsync();
                 //dbContext.Entry(customerFound).Property("RowVersion").OriginalValue;
             }
             catch (DbUpdateConcurrencyException ex)
@@ -174,6 +175,7 @@ namespace api.Controllers
                 return NotFound("Customer does not exist");
 
             await userManager.DeleteAsync(customerFound);
+            await GetPII_DBContext().SaveChangesAsync();
             return Ok("Customer deleted with success");
         }
     }

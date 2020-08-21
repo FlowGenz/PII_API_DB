@@ -160,7 +160,7 @@ namespace api.Controllers {
                 return NotFound("Dress does not exist");
 
             GetPII_DBContext().Dress.Remove(dressFound);
-            GetPII_DBContext().SaveChanges();
+            await GetPII_DBContext().SaveChangesAsync();
 
             return Ok("Dress deleted with success");
         }

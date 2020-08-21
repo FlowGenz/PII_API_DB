@@ -186,7 +186,7 @@ namespace api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
-        public async Task<ActionResult<ObjectResult>> Delete([FromRoute] string dressOrderId) {
+        public async Task<ActionResult> Delete([FromRoute] string dressOrderId) {
 
             DressOrder dressOrderFound = await GetPII_DBContext().DressOrder.FirstOrDefaultAsync(d => d.Id == dressOrderId);
 
@@ -194,7 +194,7 @@ namespace api.Controllers
                 return BadRequest("order does not exist");
 
             GetPII_DBContext().DressOrder.Remove(dressOrderFound);
-            await GetPII_DBContext().SaveChangesAsync();
+            GetPII_DBContext().SaveChanges();
 
             return Ok("Dress order added with success");
         }
