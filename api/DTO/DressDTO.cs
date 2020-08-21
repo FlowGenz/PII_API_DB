@@ -39,5 +39,7 @@ namespace DTO {
         [Url]
         [MaxLength(255)]
         public string UrlImage { get; set;}
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
     }
 } 

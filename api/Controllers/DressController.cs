@@ -130,12 +130,25 @@ namespace api.Controllers {
             if (patnerFound == null)
                 return BadRequest("Partner does not exist");
 
-            Dress dressUpdate = Mapper.MapDressDtoToDressModel(dressDTO, patnerFound);
+            //Dress dressUpdate = Mapper.MapDressDtoToDressModel(dressDTO, patnerFound);
 
             try
             {
-                GetPII_DBContext().Dress.Update(dressUpdate);
-                //dbContext.Entry(dressUpdate).Property("RowVersion").OriginalValue;
+
+                //
+                dressFound.DressName = dressDTO.DressName;
+                dressFound.Description = dressDTO.Description;
+                dressFound.Price = dressDTO.Price;
+                dressFound.Size = dressDTO.Size;
+                dressFound.Available = dressDTO.Available;
+                dressFound.DateBeginAvailable = dressDTO.DateBeginAvailable;
+                dressFound.DateEndAvailable = dressDTO.DateEndAvailable;
+                dressFound.UrlImage = dressDTO.UrlImage;
+                dressFound.User = patnerFound;
+                patnerFound.Dress.Add(dressFound);
+                //
+                
+                GetPII_DBContext().Entry(dressFound).Property("RowVersion").OriginalValue = dressDTO.RowVersion;
                 GetPII_DBContext().SaveChanges();
             }
             catch (DbUpdateConcurrencyException ex)

@@ -159,8 +159,8 @@ namespace api.Controllers
             if (customerFind == null)
                 return BadRequest("Customer does not exist");
 
-            DressOrder dressOrder = customerFind.DressOrder.FirstOrDefault(d => d.IsValid == false);
-            if (dressOrder == null)
+            DressOrder dressOrderFound = customerFind.DressOrder.FirstOrDefault(d => d.IsValid == false);
+            if (dressOrderFound == null)
                 return BadRequest("The customer do not have a order in use");
 
             if (dressOrderDTO.IsValid && (dressOrderDTO.DeliveryDate == null || dressOrderDTO.BillingDate == null))
@@ -169,8 +169,17 @@ namespace api.Controllers
             try
             {
 
-                GetPII_DBContext().DressOrder.Update(dressOrder);
-                //dbContext.Entry(dressOrder).Property("RowVersion").OriginalValue;
+                //
+
+                dressOrderFound.BillingAddress = dressOrderDTO.BillingAddress;
+                dressOrderFound.BillingDate = dressOrderDTO.BillingDate;
+                dressOrderFound.DeliveryAddress = dressOrderDTO.DeliveryAddress;
+                dressOrderFound.DeliveryDate = dressOrderDTO.DeliveryDate;
+                dressOrderFound.IsValid = dressOrderDTO.IsValid;
+
+                //
+
+                GetPII_DBContext().Entry(dressOrderFound).Property("RowVersion").OriginalValue = dressOrderDTO.RowVersion;
                 GetPII_DBContext().SaveChanges();
             }
             catch (DbUpdateConcurrencyException ex)
@@ -194,8 +203,9 @@ namespace api.Controllers
             if (dressOrderFound == null)
                 return BadRequest("order does not exist");
 
+            //Async ?
             GetPII_DBContext().DressOrder.Remove(dressOrderFound);
-            GetPII_DBContext().SaveChanges();
+            await GetPII_DBContext().SaveChangesAsync();
 
             return Ok("Dress order added with success");
         }

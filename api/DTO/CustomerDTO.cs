@@ -37,5 +37,8 @@ namespace DTO {
         [DefaultValue(0)]
         [RegularExpression("[0-9]{1,4}")]
         public int LoyaltyPoints { get; set; }
+
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
     }
 }

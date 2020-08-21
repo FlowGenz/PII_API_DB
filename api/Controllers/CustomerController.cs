@@ -27,6 +27,7 @@ namespace api.Controllers
         {
             this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             this.roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+
         }
 
         [HttpGet]
@@ -137,20 +138,28 @@ namespace api.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
         public async Task<ActionResult> Put([FromBody] CustomerDTO customerDTO)
         {
-            User customerFound = await userManager.FindByNameAsync(customerDTO.Username);
+            User customerFound = await userManager.FindByIdAsync(customerDTO.Id);
 
             if (customerFound == null)
                 return NotFound("Customer does not exist");
 
             try
             {
-                customerFound = Mapper.MapCustomerDtoToCustomerModel(customerDTO);
+                //customerFound = Mapper.MapCustomerDtoToCustomerModel(customerDTO);
 
 
+                customerFound.UserName = customerDTO.Username;
+                customerFound.UserAddress = customerDTO.CustomerAddress;
+                customerFound.LoyaltyPoints = customerDTO.LoyaltyPoints;
+                customerFound.LastName = customerDTO.LastName;
+                customerFound.FirstName = customerDTO.FirstName;
+                customerFound.Email = customerDTO.Email;
+                customerFound.PhoneNumber = customerDTO.PhoneNumber;
 
-                await userManager.UpdateAsync(customerFound);
+                //
+
+                GetPII_DBContext().Entry(customerFound).Property("RowVersion").OriginalValue = customerDTO.RowVersion;
                 await GetPII_DBContext().SaveChangesAsync();
-                //dbContext.Entry(customerFound).Property("RowVersion").OriginalValue;
             }
             catch (DbUpdateConcurrencyException ex)
             {

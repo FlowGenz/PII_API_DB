@@ -25,5 +25,7 @@ namespace DTO {
         [MaxLength(50)]
         public string CustomerName { get; set; }
         public IList<OrderLineDTO> OrderLines { get; set; }
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
     }
 }
