@@ -47,11 +47,11 @@ namespace api.Controllers
         }
 
         [HttpGet("{pageIndex}/{pageSize}")]
-        [ProducesResponseType(typeof(IEnumerable<CustomerDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginationCustomerDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
-        public async Task<ActionResult<IEnumerable<CustomerDTO>>> Get([FromRoute]int pageIndex = 0, [FromRoute] int pageSize = 6)
+        public async Task<ActionResult<PaginationCustomerDTO>> GetAllCustomerWithPagination([FromRoute]int pageIndex = 0, [FromRoute] int pageSize = 6)
         {
 
             IEnumerable<CustomerDTO> customersDTO = await GetPII_DBContext().User

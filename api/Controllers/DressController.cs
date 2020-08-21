@@ -46,11 +46,11 @@ namespace api.Controllers {
         //TODO Héritage
 
         [HttpGet("{pageIndex}/{pageSize}")]
-        [ProducesResponseType(typeof(IEnumerable<DressDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginationDressDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
-        public async Task<ActionResult<IEnumerable<DressDTO>>> GetAllDressWithPagination([FromRoute]int pageIndex = 0, [FromRoute] int pageSize = 6)
+        public async Task<ActionResult<PaginationDressDTO>> GetAllDressWithPagination([FromRoute]int pageIndex = 0, [FromRoute] int pageSize = 6)
         {
 
             IEnumerable<DressDTO> dressesDTO = await GetPII_DBContext().Dress
