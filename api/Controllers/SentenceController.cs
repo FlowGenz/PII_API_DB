@@ -35,7 +35,7 @@ namespace api.Controllers
 
             IEnumerable<SentencesOfTheDay> sentences = await GetPII_DBContext().SentencesOfTheDay.ToListAsync();
             if (!sentences.Any())
-                return BadRequest("Error in the loading of the sentences of the day");
+                return NotFound("No sentence found");
 
             int random = new Random().Next(0, sentences.Count());
 

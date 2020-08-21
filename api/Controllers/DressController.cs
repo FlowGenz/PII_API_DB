@@ -28,7 +28,6 @@ namespace api.Controllers {
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<DressDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "PARTNER, ADMIN, CUSTOMER")]
         public async Task<ActionResult<IEnumerable<DressDTO>>> Get() {
 
@@ -48,7 +47,6 @@ namespace api.Controllers {
         [HttpGet("{pageIndex}/{pageSize}")]
         [ProducesResponseType(typeof(PaginationDressDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
         public async Task<ActionResult<PaginationDressDTO>> GetAllDressWithPagination([FromRoute]int pageIndex = 0, [FromRoute] int pageSize = 6)
         {
@@ -71,7 +69,6 @@ namespace api.Controllers {
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(DressDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "PARTNER, ADMIN, CUSTOMER")]
         public async Task<ActionResult<DressDTO>> Get([FromRoute] string id)
         {
@@ -90,7 +87,6 @@ namespace api.Controllers {
         [HttpPost]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "PARTNER, ADMIN")]
         public async Task<ActionResult> Post([FromBody] DressDTO dressDTO) {
 
@@ -116,6 +112,7 @@ namespace api.Controllers {
 
         [HttpPut]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "PARTNER, ADMIN")]
@@ -128,7 +125,7 @@ namespace api.Controllers {
 
             User patnerFound = await userManager.FindByIdAsync(dressDTO.PartnerId);
             if (patnerFound == null)
-                return BadRequest("Partner does not exist");
+                return BadRequest("Partner must exists");
 
             //Dress dressUpdate = Mapper.MapDressDtoToDressModel(dressDTO, patnerFound);
 
