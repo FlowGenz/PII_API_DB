@@ -22,6 +22,7 @@ namespace DTO {
             dto.CustomerAddress = customer.UserAddress;
             dto.Username = customer.UserName;
             dto.CustomerPassword = customer.PasswordHash;
+            dto.RowVersion = customer.RowVersion;
             return dto;
         }
 
@@ -34,6 +35,7 @@ namespace DTO {
             newUser.FirstName = customerDTO.FirstName;
             newUser.Email = customerDTO.Email;
             newUser.PhoneNumber = customerDTO.PhoneNumber;
+            newUser.RowVersion = customerDTO.RowVersion;
             return newUser;
         }
 
@@ -50,6 +52,7 @@ namespace DTO {
             dto.UrlImage = dress.UrlImage;
             dto.PartnerId = dress.User.Id;
             dto.PartnerName = dress.User.UserName;
+            dto.RowVersion = dress.RowVersion;
             return dto;
         }
 
@@ -65,6 +68,7 @@ namespace DTO {
             newDress.UrlImage = dressDTO.UrlImage;
             newDress.User = partner;
             partner.Dress.Add(newDress);
+            newDress.RowVersion = dressDTO.RowVersion;
             return newDress;
         }
 
@@ -81,6 +85,7 @@ namespace DTO {
             foreach (OrderLine orderLine in dressOrder.OrderLine) {
                 dto.OrderLines.Add(MapOrderLineModelToOrderLineDTO(orderLine));
             }
+            dto.RowVersion = dressOrder.RowVersion;
             return dto;
         }
 
@@ -92,6 +97,7 @@ namespace DTO {
             newDressOrder.DeliveryAddress = dressOrderDTO.DeliveryAddress;
             newDressOrder.DeliveryDate = dressOrderDTO.DeliveryDate;
             newDressOrder.IsValid = dressOrderDTO.IsValid;
+            newDressOrder.RowVersion = dressOrderDTO.RowVersion;
             return newDressOrder;
         }
 

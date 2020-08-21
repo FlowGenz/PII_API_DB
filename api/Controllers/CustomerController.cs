@@ -54,18 +54,27 @@ namespace api.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN, CUSTOMER")]
         public async Task<ActionResult<PaginationCustomerDTO>> GetAllCustomerWithPagination([FromRoute]int pageIndex = 0, [FromRoute] int pageSize = 6)
         {
+            IEnumerable<User> users = await userManager.GetUsersInRoleAsync("CUSTOMER");
 
-            IEnumerable<CustomerDTO> customersDTO = await GetPII_DBContext().User
-                .OrderBy(u => u.Id)
+            IEnumerable<CustomerDTO> customersDTO = users
+                .OrderBy(c => c.Id)
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize)
+                .Select(c => Mapper.MapCustomerModelToCustomerDTO(c));
+
+            /*
+            IEnumerable<CustomerDTO> customersDTO = userManager.GetUsersInRoleAsync("CUSTOMER").Result
+                .OrderBy(c => c.Id)
                 .Skip(pageIndex * pageSize)
                 .Take(pageSize)
                 .Select(x => Mapper.MapCustomerModelToCustomerDTO(x))
-                .ToListAsync();
+                .ToList();
+            */
 
             int count = await GetPII_DBContext().User.CountAsync();
 
             if (count > 0 && customersDTO.Any())
-                return Ok(new PaginationCustomerDTO(customersDTO, pageSize, pageIndex, (int)Math.Ceiling(count / (double)pageSize)));
+                return Ok(new PaginationCustomerDTO(customersDTO, pageIndex, pageSize, (int)Math.Ceiling(count / (double)pageSize)));
             return NotFound("No customer found");
         }
 
@@ -116,7 +125,6 @@ namespace api.Controllers
             User newUser = Mapper.MapCustomerDtoToCustomerModel(customerDTO);
 
             IdentityResult result = await userManager.CreateAsync(newUser, customerDTO.CustomerPassword);
-            //Check in startup file more efficient ? 
             if (!await roleManager.RoleExistsAsync("CUSTOMER"))
                 await roleManager.CreateAsync(new IdentityRole("CUSTOMER"));
 

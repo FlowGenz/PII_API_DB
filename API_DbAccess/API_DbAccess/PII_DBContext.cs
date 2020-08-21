@@ -46,7 +46,6 @@ namespace API_DbAccess
             builder.Entity<DressOrder>().HasKey(d => d.Id);
             builder.Entity<OrderLine>().HasKey(o => o.Id);
             builder.Entity<Favorites>().HasKey(f => f.Id);
-            //A supprimer?
             builder.Entity<User>().HasKey(u => u.Id);
             builder.Entity<SentencesOfTheDay>().HasKey(s => s.Id);
             base.OnModelCreating(builder);
