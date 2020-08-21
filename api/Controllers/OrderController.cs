@@ -75,7 +75,7 @@ namespace api.Controllers
             return NotFound("No order found");
         }
 
-        [HttpGet("{username}")]
+        /*[HttpGet("{username}")]
         [ProducesResponseType(typeof(DressOrderDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -99,7 +99,7 @@ namespace api.Controllers
 
             DressOrderDTO dressOrderDTO = Mapper.MapDressOrderModelToDressOrderDTO(dressOrder);
             return Ok(dressOrderDTO);
-        }
+        }*/
 
         [HttpGet("{orderId}")]
         [ProducesResponseType(typeof(DressOrderDTO), StatusCodes.Status200OK)]
@@ -108,7 +108,9 @@ namespace api.Controllers
         public async Task<ActionResult<IEnumerable<DressOrderDTO>>> GetOneDressOrder([FromRoute] string orderId)
         {
 
-            DressOrder dressOrder = await GetPII_DBContext().DressOrder.FirstOrDefaultAsync(o => o.Id == orderId);
+            DressOrder dressOrder = await GetPII_DBContext().DressOrder
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
 
             if (dressOrder == null)
                 return NotFound("No order found");
@@ -162,8 +164,6 @@ namespace api.Controllers
 
             if (dressOrderDTO.IsValid && (dressOrderDTO.DeliveryDate == null || dressOrderDTO.BillingDate == null))
                 return BadRequest("The order is not valid");
-
-            
 
             try
             {
