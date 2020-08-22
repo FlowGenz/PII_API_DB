@@ -88,7 +88,8 @@ namespace api.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "CUSTOMER")]
         public async Task<ActionResult> Post([FromBody] FavoriteDTO favoriteDTO) {
 
-            Favorites favoriteFound = await GetPII_DBContext().Favorites.FirstOrDefaultAsync(f => f.UserId == favoriteDTO.CustomerId && f.DressId == favoriteDTO.DressId);
+            Favorites favoriteFound = await GetPII_DBContext().Favorites
+                .FirstOrDefaultAsync(f => f.UserId == favoriteDTO.CustomerId && f.DressId == favoriteDTO.DressId);
 
             if (favoriteFound != null)
                 return BadRequest("Favorite already exists");
@@ -107,8 +108,8 @@ namespace api.Controllers
 
             Favorites newFavorite = Mapper.MapFavoriteDtoToFavoriteModel(favoriteDTO, customerExist, dressExist);
 
-            GetPII_DBContext().Favorites.Add(newFavorite);
-            GetPII_DBContext().SaveChanges();
+            await GetPII_DBContext().Favorites.AddAsync(newFavorite);
+            await GetPII_DBContext().SaveChangesAsync();
             return Created("Favorite added with success", null);
         }
 
@@ -124,7 +125,7 @@ namespace api.Controllers
                 return NotFound("Favorite not found");
 
             GetPII_DBContext().Favorites.Remove(favoriteFind);
-            GetPII_DBContext().SaveChanges();
+            await GetPII_DBContext().SaveChangesAsync();
             return Ok("Favorite deleted with success");
         }
     }

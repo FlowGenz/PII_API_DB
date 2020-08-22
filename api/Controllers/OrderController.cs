@@ -137,7 +137,7 @@ namespace api.Controllers
 
             await GetPII_DBContext().DressOrder.AddAsync(dressOrder);
             await GetPII_DBContext().SaveChangesAsync();
-            return Created("Dress order added with success", dressOrder.Id);
+            return Created("Dress order added with success", null);
         }
 
         [HttpPut]
@@ -156,20 +156,17 @@ namespace api.Controllers
             if (dressOrderDTO.OrderLines.Count < 1)
                 return BadRequest("An order can not be updated without orderLines");
 
-            User customerFind = await GetPII_DBContext().User.Include(u => u.DressOrder).FirstOrDefaultAsync(u => u.Id == dressOrderDTO.CustomerId);
+            User customerFind = await GetPII_DBContext().User
+                .FirstOrDefaultAsync(u => u.Id == dressOrderDTO.CustomerId);
+
             if (customerFind == null)
                 return BadRequest("Customer must exists");
-
-            DressOrder dressOrderFound = customerFind.DressOrder.FirstOrDefault(d => d.IsValid == false);
-            if (dressOrderFound == null)
-                return BadRequest("The order must be assigned to a customer");
 
             if (dressOrderDTO.IsValid && (dressOrderDTO.DeliveryDate == null || dressOrderDTO.BillingDate == null))
                 return BadRequest("The order is not valid");
 
             try
             {
-
                 //
 
                 dressOrderFound.BillingAddress = dressOrderDTO.BillingAddress;
@@ -181,7 +178,7 @@ namespace api.Controllers
                 //
 
                 GetPII_DBContext().Entry(dressOrderFound).Property("RowVersion").OriginalValue = dressOrderDTO.RowVersion;
-                GetPII_DBContext().SaveChanges();
+                await GetPII_DBContext().SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -204,11 +201,10 @@ namespace api.Controllers
             if (dressOrderFound == null)
                 return BadRequest("order does not exist");
 
-            //Async ?
             GetPII_DBContext().DressOrder.Remove(dressOrderFound);
             await GetPII_DBContext().SaveChangesAsync();
 
-            return Ok("Dress order added with success");
+            return Ok("Dress order deleted with success");
         }
     }
 }

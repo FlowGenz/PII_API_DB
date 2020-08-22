@@ -1,8 +1,7 @@
-using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace DTO {
+namespace DTO
+{
     public class FavoriteDressDTO
     {
         public FavoriteDressDTO()

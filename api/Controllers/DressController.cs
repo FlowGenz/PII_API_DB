@@ -42,8 +42,6 @@ namespace api.Controllers {
             return Ok(dressesDTO);
         }
 
-        //TODO Héritage
-
         [HttpGet("{pageIndex}/{pageSize}")]
         [ProducesResponseType(typeof(PaginationDressDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -56,7 +54,7 @@ namespace api.Controllers {
                 .OrderBy(d => d.Id)
                 .Skip(pageIndex * pageSize)
                 .Take(pageSize)
-                .Select(x => Mapper.MapDressModelToDressDTO(x))
+                .Select(d => Mapper.MapDressModelToDressDTO(d))
                 .ToListAsync();
 
             int count = await GetPII_DBContext().Dress.CountAsync();
@@ -85,7 +83,7 @@ namespace api.Controllers {
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "PARTNER, ADMIN")]
         public async Task<ActionResult> Post([FromBody] DressDTO dressDTO) {
@@ -107,7 +105,7 @@ namespace api.Controllers {
             await GetPII_DBContext().Dress.AddAsync(newDress);
             await GetPII_DBContext().SaveChangesAsync();
 
-            return Ok("Dress added with success");
+            return Created("Dress added with success", null);
         }
 
         [HttpPut]

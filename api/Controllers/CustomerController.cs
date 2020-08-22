@@ -134,10 +134,8 @@ namespace api.Controllers
                 await userManager.AddToRoleAsync(newUser, "CUSTOMER");
                 return Created("Customer created with success", null);
             }
-            else
-            {
-                return BadRequest(result.Errors);
-            }
+                
+            return BadRequest(result.Errors);
         }
 
         [HttpPut]

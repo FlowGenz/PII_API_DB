@@ -1,9 +1,7 @@
-
-using System;
-using System.Collections.Generic;
 using API_DbAccess;
 
-namespace DTO {
+namespace DTO
+{
     public class Mapper
     
     {
@@ -12,18 +10,18 @@ namespace DTO {
         }
         
         public static CustomerDTO MapCustomerModelToCustomerDTO(User customer) {
-            CustomerDTO dto = new CustomerDTO();
-            dto.Id = customer.Id;
-            dto.FirstName = customer.FirstName;
-            dto.LastName = customer.LastName;
-            dto.LoyaltyPoints = (int)customer.LoyaltyPoints;
-            dto.Email = customer.Email;
-            dto.PhoneNumber = customer.PhoneNumber;
-            dto.CustomerAddress = customer.UserAddress;
-            dto.Username = customer.UserName;
-            dto.CustomerPassword = customer.PasswordHash;
-            dto.RowVersion = customer.RowVersion;
-            return dto;
+            CustomerDTO customerDTO = new CustomerDTO();
+            customerDTO.Id = customer.Id;
+            customerDTO.FirstName = customer.FirstName;
+            customerDTO.LastName = customer.LastName;
+            customerDTO.LoyaltyPoints = (int)customer.LoyaltyPoints;
+            customerDTO.Email = customer.Email;
+            customerDTO.PhoneNumber = customer.PhoneNumber;
+            customerDTO.CustomerAddress = customer.UserAddress;
+            customerDTO.Username = customer.UserName;
+            customerDTO.CustomerPassword = customer.PasswordHash;
+            customerDTO.RowVersion = customer.RowVersion;
+            return customerDTO;
         }
 
         public static User MapCustomerDtoToCustomerModel(CustomerDTO customerDTO) {
@@ -40,20 +38,20 @@ namespace DTO {
         }
 
         public static DressDTO MapDressModelToDressDTO(Dress dress) {
-            DressDTO dto = new DressDTO();
-            dto.Id = dress.Id;
-            dto.DressName = dress.DressName;
-            dto.Description = dress.Description;
-            dto.Price = dress.Price;
-            dto.Size = dress.Size;
-            dto.Available = dress.Available;
-            dto.DateBeginAvailable = dress.DateBeginAvailable;
-            dto.DateEndAvailable = dress.DateEndAvailable;
-            dto.UrlImage = dress.UrlImage;
-            dto.PartnerId = dress.User.Id;
-            dto.PartnerName = dress.User.UserName;
-            dto.RowVersion = dress.RowVersion;
-            return dto;
+            DressDTO dressDTO = new DressDTO();
+            dressDTO.Id = dress.Id;
+            dressDTO.DressName = dress.DressName;
+            dressDTO.Description = dress.Description;
+            dressDTO.Price = dress.Price;
+            dressDTO.Size = dress.Size;
+            dressDTO.Available = dress.Available;
+            dressDTO.DateBeginAvailable = dress.DateBeginAvailable;
+            dressDTO.DateEndAvailable = dress.DateEndAvailable;
+            dressDTO.UrlImage = dress.UrlImage;
+            dressDTO.PartnerId = dress.User.Id;
+            dressDTO.PartnerName = dress.User.UserName;
+            dressDTO.RowVersion = dress.RowVersion;
+            return dressDTO;
         }
 
         public static Dress MapDressDtoToDressModel(DressDTO dressDTO, User partner) {
@@ -73,20 +71,20 @@ namespace DTO {
         }
 
         public static DressOrderDTO MapDressOrderModelToDressOrderDTO(DressOrder dressOrder) {
-            DressOrderDTO dto = new DressOrderDTO();
-            dto.Id = dressOrder.Id;
-            dto.BillingAddress = dressOrder.BillingAddress;
-            dto.BillingDate = dressOrder.BillingDate;
-            dto.DeliveryAddress = dressOrder.DeliveryAddress;
-            dto.DeliveryDate = dressOrder.DeliveryDate;
-            dto.IsValid = dressOrder.IsValid;
-            dto.CustomerId = dressOrder.User.Id;
-            dto.CustomerName = dressOrder.User.FirstName + dressOrder.User.LastName;
+            DressOrderDTO dressOrderDTO = new DressOrderDTO();
+            dressOrderDTO.Id = dressOrder.Id;
+            dressOrderDTO.BillingAddress = dressOrder.BillingAddress;
+            dressOrderDTO.BillingDate = dressOrder.BillingDate;
+            dressOrderDTO.DeliveryAddress = dressOrder.DeliveryAddress;
+            dressOrderDTO.DeliveryDate = dressOrder.DeliveryDate;
+            dressOrderDTO.IsValid = dressOrder.IsValid;
+            dressOrderDTO.CustomerId = dressOrder.User.Id;
+            dressOrderDTO.CustomerName = dressOrder.User.FirstName + dressOrder.User.LastName;
             foreach (OrderLine orderLine in dressOrder.OrderLine) {
-                dto.OrderLines.Add(MapOrderLineModelToOrderLineDTO(orderLine));
+                dressOrderDTO.OrderLines.Add(MapOrderLineModelToOrderLineDTO(orderLine));
             }
-            dto.RowVersion = dressOrder.RowVersion;
-            return dto;
+            dressOrderDTO.RowVersion = dressOrder.RowVersion;
+            return dressOrderDTO;
         }
 
         public static DressOrder MapDressOrderDtoToDressOrderModel(DressOrderDTO dressOrderDTO)
@@ -113,20 +111,20 @@ namespace DTO {
         }
 
         public static PartnerDTO MapPartnerModelToPartnerDTO(User partner) {
-            PartnerDTO dto = new PartnerDTO();
-            dto.Id = partner.Id;
-            dto.Username = partner.UserName;
-            return dto;
+            PartnerDTO partnerDTO = new PartnerDTO();
+            partnerDTO.Id = partner.Id;
+            partnerDTO.Username = partner.UserName;
+            return partnerDTO;
         }
 
         public static FavoriteDTO MapFavoriteModelToFavoriteDTO(Favorites favorite) {
-            FavoriteDTO dto = new FavoriteDTO();
-            dto.Id = favorite.Id;
-            dto.DressName = favorite.Dress.DressName;
-            dto.DressPrice = favorite.Dress.Price;
-            dto.UrlImage = favorite.Dress.UrlImage;
-            dto.Available = favorite.Dress.Available;
-            return dto;
+            FavoriteDTO favoriteDTO = new FavoriteDTO();
+            favoriteDTO.Id = favorite.Id;
+            favoriteDTO.DressName = favorite.Dress.DressName;
+            favoriteDTO.DressPrice = favorite.Dress.Price;
+            favoriteDTO.UrlImage = favorite.Dress.UrlImage;
+            favoriteDTO.Available = favorite.Dress.Available;
+            return favoriteDTO;
         }
 
         public static Favorites MapFavoriteDtoToFavoriteModel(FavoriteDTO favoriteDTO, User customer, Dress dress) {
@@ -140,17 +138,17 @@ namespace DTO {
         }
 
         public static OrderLineDTO MapOrderLineModelToOrderLineDTO(OrderLine orderLine) {
-            OrderLineDTO dto = new OrderLineDTO();
-            dto.Id = orderLine.Id;
-            dto.DateBeginLocation = orderLine.DateBeginLocation;
-            dto.DateEndLocation = orderLine.DateEndLocation;
-            dto.FinalPrice = orderLine.FinalPrice;
-            dto.DressId = orderLine.DressId;
-            dto.DressOrderId = orderLine.DressOrderId;
-            dto.DressName = orderLine.Dress.DressName;
-            dto.IsDressAvailable = orderLine.Dress.Available;
-            dto.DressUrlImage = orderLine.Dress.UrlImage;
-            return dto;
+            OrderLineDTO orderLineDTO = new OrderLineDTO();
+            orderLineDTO.Id = orderLine.Id;
+            orderLineDTO.DateBeginLocation = orderLine.DateBeginLocation;
+            orderLineDTO.DateEndLocation = orderLine.DateEndLocation;
+            orderLineDTO.FinalPrice = orderLine.FinalPrice;
+            orderLineDTO.DressId = orderLine.DressId;
+            orderLineDTO.DressOrderId = orderLine.DressOrderId;
+            orderLineDTO.DressName = orderLine.Dress.DressName;
+            orderLineDTO.IsDressAvailable = orderLine.Dress.Available;
+            orderLineDTO.DressUrlImage = orderLine.Dress.UrlImage;
+            return orderLineDTO;
         }
     }
 }
